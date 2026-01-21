@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RESTAURANTE CHAFA SIMULATOR - DIEDEB GAMES</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #2c3e50; color: white; font-family: 'Arial Black', sans-serif; text-align: center; touch-action: none; }
+        #game-container { width: 100vw; height: 100vh; position: relative; }
+        #local-background { width: 100%; height: 100%; background: #8e44ad; position: absolute; z-index: 1; border: 15px solid #4a235a; box-sizing: border-box; }
+        #window { width: 280px; height: 200px; background: #1a1a1a; border: 10px solid #5d4037; position: absolute; top: 60px; left: 50%; transform: translateX(-50%); z-index: 2; display: flex; align-items: flex-end; justify-content: center; }
+        #counter { width: 100%; height: 150px; background: #5d4037; position: absolute; bottom: 0; z-index: 5; border-top: 10px solid #3e2723; }
+        .cliente { font-size: 100px; position: absolute; bottom: -10px; filter: drop-shadow(2px 2px 0 #000); }
+        .burbuja { background: white; color: black; padding: 10px; border-radius: 15px; position: absolute; top: -100px; width: 200px; font-size: 14px; border: 3px solid #000; font-weight: bold; }
+        .stats { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.9); padding: 10px; border-radius: 10px; z-index: 10; text-align: left; border: 2px solid #ffeb3b; font-size: 14px; }
+        
+        #btn-start { padding: 20px 40px; font-size: 18px; background: #ffeb3b; border: 4px solid #f9a825; cursor: pointer; border-radius: 15px; font-weight: bold; margin-top: 20px; color: #333; }
+        
+        /* MINIJUEGO */
+        #minigame-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; z-index: 100; flex-direction: column; align-items: center; }
+        #falling-area { width: 95%; height: 70%; background: #000; position: relative; overflow: hidden; border: 4px solid #ffeb3b; margin-top: 5px; background-image: radial-gradient(#333 1px, transparent 1px); background-size: 20px 20px; }
+        #grill { width: 100px; height: 20px; background: linear-gradient(#7f8c8d, #34495e); position: absolute; bottom: 20px; left: 50%; border-radius: 5px; border: 2px solid white; box-shadow: 0 5px 15px rgba(255,255,255,0.3); transform: translateX(-50%); }
+        .falling-item { position: absolute; font-size: 45px; user-select: none; pointer-events: none; }
+        #target-text { color: #00ff00; font-size: 25px; text-shadow: 0 0 10px #00ff00; }
+
+        /* CONTROLES MÓVILES */
+        #mobile-controls { position: absolute; bottom: 10px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box; z-index: 200; pointer-events: none; }
+        .m-btn { width: 80px; height: 80px; background: rgba(255, 235, 59, 0.3); border: 3px solid #ffeb3b; border-radius: 50%; color: white; font-size: 40px; pointer-events: auto; display: flex; align-items: center; justify-content: center; user-select: none; }
+        .m-btn:active { background: rgba(255, 235, 59, 0.6); transform: scale(0.9); }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="local-background"></div>
+        <div id="window">
+            <div class="burbuja" id="order-text">ESPERANDO...</div>
+            <div class="cliente" id="customer">🛎️</div>
+        </div>
+        <div id="counter">
+            <button id="btn-start" onclick="startMinigame()">PREPARAR PEDIDO 🍳</button>
+        </div>
+    </div>
+
+    <div class="stats">
+        💰 $<span id="money">0</span> | ❤️ <span id="hp">❤️❤️❤️</span><br>
+        ⏳ TIEMPO: <span id="timer">45</span>s
+    </div>
+
+    <div id="minigame-overlay">
+        <h2 style="color: #ffeb3b; margin: 10px;">¡RECOLECTA EL PEDIDO!</h2>
+        <div style="font-size: 18px; margin-bottom: 5px;">NECESITAS: <span id="target-text"></span></div>
+        <div id="falling-area">
+            <div id="grill"></div>
+        </div>
+        
+        <div id="mobile-controls">
+            <div class="m-btn" id="m-left">◀</div>
+            <div class="m-btn" id="m-right">▶</div>
+        </div>
+    </div>
+
+    <script>
+        let money = 0, hp = 3, time = 45;
+        let currentOrder = [], playerCollected = [];
+        let minigameActive = false;
+        let grillX = 50; 
+        let timerInt, rainInt;
+
+        const ingredientes = ['🍞', '🥩', '🧀', '🥬'];
+        const basura = ['🐀', '🔩', '🤢', '👞']; 
+        const clientes = ['🧟', '🧙', '🤖', '👽'];
+
+        // CONTROLES MÓVILES Y DESLIZAMIENTO
+        const grill = document.getElementById('grill');
+        const fallingArea = document.getElementById('falling-area');
+
+        // Mover con botones
+        let moveInt;
+        function startMove(dir) {
+            clearInterval(moveInt);
+            moveInt = setInterval(() => {
+                grillX = Math.max(10, Math.min(90, grillX + dir * 3));
+                grill.style.left = grillX + "%";
+            }, 20);
+        }
+        function stopMove() { clearInterval(moveInt); }
+
+        document.getElementById('m-left').ontouchstart = (e) => { e.preventDefault(); startMove(-1); };
+        document.getElementById('m-right').ontouchstart = (e) => { e.preventDefault(); startMove(1); };
+        document.getElementById('m-left').ontouchend = stopMove;
+        document.getElementById('m-right').ontouchend = stopMove;
+
+        // Mover con el dedo deslizándolo por el área de juego
+        fallingArea.ontouchmove = (e) => {
+            let touch = e.touches[0];
+            let rect = fallingArea.getBoundingClientRect();
+            let x = ((touch.clientX - rect.left) / rect.width) * 100;
+            grillX = Math.max(10, Math.min(90, x));
+            grill.style.left = grillX + "%";
+        };
+
+        // Teclado PC
+        document.addEventListener('keydown', (e) => {
+            if(e.key === "ArrowLeft") grillX = Math.max(10, grillX - 8);
+            if(e.key === "ArrowRight") grillX = Math.min(90, grillX + 8);
+            grill.style.left = grillX + "%";
+        });
+
+        function spawnCustomer() {
+            time = 45;
+            playerCollected = [];
+            document.getElementById('btn-start').style.display = 'block';
+            
+            currentOrder = [];
+            for(let i=0; i<3; i++) currentOrder.push(ingredientes[Math.floor(Math.random()*ingredientes.length)]);
+            
+            document.getElementById('customer').innerText = clientes[Math.floor(Math.random()*clientes.length)];
+            document.getElementById('order-text').innerText = "¡QUIERO: " + currentOrder.join(" + ") + "!";
+            
+            clearInterval(timerInt);
+            timerInt = setInterval(() => {
+                if(!minigameActive) {
+                    time--;
+                    document.getElementById('timer').innerText = time;
+                    if(time <= 0) failOrder("¡DEMASIADO TARDE!");
+                }
+            }, 1000);
+        }
+
+        function startMinigame() {
+            minigameActive = true;
+            document.getElementById('minigame-overlay').style.display = 'flex';
+            updateTargetText();
+            rainInt = setInterval(() => { if(minigameActive) createItem(); }, 700);
+        }
+
+        function updateTargetText() {
+            let missing = [...currentOrder];
+            playerCollected.forEach(item => {
+                let index = missing.indexOf(item);
+                if (index > -1) missing.splice(index, 1);
+            });
+            document.getElementById('target-text').innerText = missing.length > 0 ? missing.join(" ") : "¡DAME!";
+        }
+
+        function createItem() {
+            const area = document.getElementById('falling-area');
+            const item = document.createElement('div');
+            item.className = 'falling-item';
+            
+            let missing = currentOrder.filter(x => !playerCollected.includes(x));
+            if(Math.random() < 0.5 && missing.length > 0) {
+                item.innerText = missing[Math.floor(Math.random()*missing.length)];
+            } else {
+                const pool = [...ingredientes, ...basura];
+                item.innerText = pool[Math.floor(Math.random()*pool.length)];
+            }
+            
+            item.style.left = Math.random() * 80 + 10 + "%";
+            item.style.top = "-50px";
+            area.appendChild(item);
+
+            let pos = -50;
+            let fall = setInterval(() => {
+                if(!minigameActive) { clearInterval(fall); item.remove(); return; }
+                pos += 5;
+                item.style.top = pos + "px";
+
+                let areaH = area.clientHeight;
+                if(pos > areaH - 50 && pos < areaH - 10) {
+                    let itemX = parseFloat(item.style.left);
+                    if(Math.abs(itemX - grillX) < 12) {
+                        handleCatch(item.innerText);
+                        clearInterval(fall);
+                        item.remove();
+                    }
+                }
+                if(pos > areaH) { clearInterval(fall); item.remove(); }
+            }, 20);
+        }
+
+        function handleCatch(emoji) {
+            let neededCount = currentOrder.filter(x => x === emoji).length;
+            let currentCount = playerCollected.filter(x => x === emoji).length;
+
+            if(currentOrder.includes(emoji) && currentCount < neededCount) {
+                playerCollected.push(emoji);
+                updateTargetText();
+                if(playerCollected.length === currentOrder.length) setTimeout(() => finishOrder(true), 300);
+            } else if (basura.includes(emoji)) {
+                finishOrder(false);
+            }
+        }
+
+        function finishOrder(success) {
+            minigameActive = false;
+            clearInterval(rainInt);
+            document.getElementById('minigame-overlay').style.display = 'none';
+            if(success) {
+                money += 30;
+                document.getElementById('money').innerText = money;
+                document.getElementById('order-text').innerText = "¡RIQUÍSIMO! +$30";
+                setTimeout(spawnCustomer, 1500);
+            } else {
+                failOrder("¡ASQUEROSO!");
+            }
+        }
+
+        function failOrder(msg) {
+            hp--;
+            minigameActive = false;
+            clearInterval(rainInt);
+            document.getElementById('minigame-overlay').style.display = 'none';
+            document.getElementById('hp').innerText = "❤️".repeat(hp);
+            document.getElementById('order-text').innerText = msg;
+            if(hp <= 0) { alert("¡CLAUSURADO POR SALUBRIDAD!"); location.reload(); }
+            else { setTimeout(spawnCustomer, 1500); }
+        }
+
+        spawnCustomer();
+    </script>
+</body>
+</html>

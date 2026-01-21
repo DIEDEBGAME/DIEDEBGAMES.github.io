@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Primal Clash - Arreglado</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            font-family: sans-serif;
+        }
+        #game-ui {
+            width: 800px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .bar-container {
+            width: 300px;
+            height: 20px;
+            background: #444;
+            border: 2px solid #fff;
+        }
+        .bar {
+            height: 100%;
+            width: 100%;
+            transition: width 0.2s;
+        }
+        #p1-health { background: #4caf50; }
+        #p2-health { background: #f44336; }
+        canvas {
+            border: 4px solid #5c4033;
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-ui">
+        <div>
+            <div>CAVERMAN (A-D / W / Espacio)</div>
+            <div class="bar-container"><div id="p1-health" class="bar"></div></div>
+        </div>
+        <div style="text-align: right;">
+            <div>BOSS (Flechas / Enter)</div>
+            <div class="bar-container"><div id="p2-health" class="bar"></div></div>
+        </div>
+    </div>
+    
+    <canvas id="canvas"></canvas>
+
+<script>
+    const canvas = document.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 800;
+    canvas.height = 400;
+
+    const gravity = 0.7;
+
+    class Player {
+        constructor({ x, y, color, attackOffset }) {
+            this.pos = { x, y };
+            this.vel = { x: 0, y: 0 };
+            this.width = 50;
+            this.height = 100;
+            this.color = color;
+            this.health = 100;
+            this.isAttacking = false;
+            this.attackBox = { x: 0, y: 0, w: 80, h: 40, offset: attackOffset };
+        }
+
+        draw() {
+            // Cuerpo
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
+
+            // Ataque
+            if (this.isAttacking) {
+                ctx.fillStyle = "white";
+                ctx.fillRect(this.attackBox.x, this.attackBox.y, this.attackBox.w, this.attackBox.h);
+            }
+        }
+
+        update() {
+            this.draw();
+            this.attackBox.x = this.pos.x + this.attackBox.offset;
+            this.attackBox.y = this.pos.y + 20;
+
+            this.pos.x += this.vel.x;
+            this.pos.y += this.vel.y;
+
+            if (this.pos.y + this.height + this.vel.y >= canvas.height) {
+                this.vel.y = 0;
+            } else {
+                this.vel.y += gravity;
+            }
+        }
+
+        attack() {
+            this.isAttacking = true;
+            setTimeout(() => { this.isAttacking = false; }, 100);
+        }
+    }
+
+    const p1 = new Player({ x: 100, y: 100, color: 'green', attackOffset: 50 });
+    const p2 = new Player({ x: 650, y: 100, color: 'red', attackOffset: -80 });
+
+    const keys = {
+        a: false, d: false, ArrowLeft: false, ArrowRight: false
+    };
+
+    function loop() {
+        ctx.fillStyle = "#222";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        p1.update();
+        p2.update();
+
+        // Control P1
+        p1.vel.x = 0;
+        if (keys.a) p1.vel.x = -5;
+        if (keys.d) p1.vel.x = 5;
+
+        // Control P2
+        p2.vel.x = 0;
+        if (keys.ArrowLeft) p2.vel.x = -5;
+        if (keys.ArrowRight) p2.vel.x = 5;
+
+        // Colisión P1 pega a P2
+        if (p1.isAttacking && 
+            p1.attackBox.x < p2.pos.x + p2.width &&
+            p1.attackBox.x + p1.attackBox.w > p2.pos.x &&
+            p1.attackBox.y < p2.pos.y + p2.height &&
+            p1.attackBox.y + p1.attackBox.h > p2.pos.y) {
+            p1.isAttacking = false;
+            p2.health -= 10;
+            document.getElementById('p2-health').style.width = p2.health + "%";
+        }
+
+        // Colisión P2 pega a P1
+        if (p2.isAttacking && 
+            p2.attackBox.x < p1.pos.x + p1.width &&
+            p2.attackBox.x + p1.attackBox.w > p1.pos.x &&
+            p2.attackBox.y < p1.pos.y + p1.height &&
+            p2.attackBox.y + p1.attackBox.h > p1.pos.y) {
+            p2.isAttacking = false;
+            p1.health -= 10;
+            document.getElementById('p1-health').style.width = p1.health + "%";
+        }
+
+        if (p1.health > 0 && p2.health > 0) {
+            requestAnimationFrame(loop);
+        } else {
+            ctx.fillStyle = "white";
+            ctx.font = "40px Arial";
+            ctx.fillText("¡FIN DE LA PELEA!", 250, 200);
+        }
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'a') keys.a = true;
+        if (e.key === 'd') keys.d = true;
+        if (e.key === 'w' && p1.pos.y > 290) p1.vel.y = -15;
+        if (e.key === ' ') p1.attack();
+
+        if (e.key === 'ArrowLeft') keys.ArrowLeft = true;
+        if (e.key === 'ArrowRight') keys.ArrowRight = true;
+        if (e.key === 'ArrowUp' && p2.pos.y > 290) p2.vel.y = -15;
+        if (e.key === 'Enter') p2.attack();
+    });
+
+    window.addEventListener('keyup', (e) => {
+        if (e.key === 'a') keys.a = false;
+        if (e.key === 'd') keys.d = false;
+        if (e.key === 'ArrowLeft') keys.ArrowLeft = false;
+        if (e.key === 'ArrowRight') keys.ArrowRight = false;
+    });
+
+    loop();
+</script>
+</body>
+</html>

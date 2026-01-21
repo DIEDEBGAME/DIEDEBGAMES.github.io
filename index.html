@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DIEDEB GAMES - PORTAL 2026</title>
+    <style>
+        :root {
+            --neon-green: #ccff00; --neon-blue: #00ffff; --dark-bg: #050505;
+            --soul-purple: #a349a4; --horror-red: #ff0000; --pc-yellow: #ffff00;
+        }
+
+        /* Animación de fondo: Estrellas moviéndose */
+        @keyframes move-twinkling {
+            from { background-position: 0 0; }
+            to { background-position: -10000px 5000px; }
+        }
+
+        body { 
+            margin: 0; 
+            background: var(--dark-bg); 
+            color: white; 
+            font-family: 'Arial Black', sans-serif; 
+            text-align: center;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        /* Capa de estrellas animadas */
+        .stars-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: transparent url('https://www.transparenttextures.com/patterns/stardust.png') repeat top center;
+            z-index: -1;
+            animation: move-twinkling 200s linear infinite;
+            opacity: 0.5;
+        }
+
+        #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; justify-content: center; align-items: center; }
+        
+        .auth-box { 
+            background: #111; padding: 40px; border: 3px solid var(--neon-green); border-radius: 30px; 
+            box-shadow: 0 0 20px var(--neon-green);
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 10px var(--neon-green); }
+            50% { box-shadow: 0 0 30px var(--neon-green); }
+            100% { box-shadow: 0 0 10px var(--neon-green); }
+        }
+
+        .auth-btn { background: var(--neon-green); color: black; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.3s; }
+        .auth-btn:hover { transform: scale(1.1); box-shadow: 0 0 20px var(--neon-green); }
+
+        header { padding: 60px 20px; }
+        
+        /* Título con efecto Neón parpadeante */
+        h1 { 
+            font-size: clamp(35px, 10vw, 70px); 
+            margin: 0; 
+            color: var(--neon-green); 
+            text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+            animation: flicker 3s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green); }
+            20%, 24%, 55% { text-shadow: none; }
+        }
+
+        .container { padding: 0 15px 50px 15px; max-width: 1100px; margin: 0 auto; position: relative; }
+
+        .section-title { 
+            text-align: left; color: var(--neon-blue); font-size: 16px; margin: 40px 0 20px 5px; 
+            border-left: 4px solid var(--neon-blue); padding-left: 15px;
+            text-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+
+        /* Tarjetas con animación de flotación */
+        .game-card { 
+            background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 20px; 
+            padding: 25px 10px; text-decoration: none; color: white; transition: 0.4s; 
+            display: flex; flex-direction: column; align-items: center; position: relative;
+            backdrop-filter: blur(5px);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Variar el tiempo de flotación para que no todas suban al mismo tiempo */
+        .game-card:nth-child(even) { animation-duration: 5s; }
+        .game-card:nth-child(odd) { animation-duration: 3.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .game-card:hover { 
+            border-color: var(--neon-green); 
+            transform: scale(1.1) translateY(-15px) !important; 
+            background: #222; 
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .badge { position: absolute; top: 8px; right: 8px; color: white; font-size: 9px; padding: 3px 8px; border-radius: 6px; font-weight: bold; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .icon { font-size: 35px; margin-bottom: 10px; transition: 0.3s; }
+        .game-card:hover .icon { transform: rotate(15deg) scale(1.2); }
+        .game-name { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+
+        footer { padding: 60px; color: #444; font-size: 12px; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="stars-container"></div>
+
+    <div id="auth-overlay">
+        <div class="auth-box">
+            <h2 style="color: var(--neon-green); margin-top:0;">DIEDEB CLOUD</h2>
+            <p style="font-size: 10px; color: #666;">BIENVENIDO AL PORTAL</p>
+            <input type="text" id="username" placeholder="Usuario" style="width:100%; padding:12px; box-sizing:border-box; background:#000; color:white; border:1px solid #333; border-radius: 8px; outline:none;">
+            <button class="auth-btn" onclick="handleAuth()">ENTRAR AL SISTEMA</button>
+        </div>
+    </div>
+
+    <div id="user-bar" style="background: rgba(0,0,0,0.8); padding: 15px 25px; display: none; justify-content: space-between; align-items: center; font-size: 12px; border-bottom: 1px solid #222; backdrop-filter: blur(10px);">
+        <div><span style="color:#555">USUARIO:</span> <span id="display-user" style="color:var(--neon-green)">-</span></div>
+        <div style="color:#ff3e3e; cursor:pointer; font-weight: bold;" onclick="logout()">[ CERRAR SESIÓN ]</div>
+    </div>
+
+    <header>
+        <h1>DIEDEB GAMES</h1>
+        <p style="color: var(--neon-blue); font-size: 10px; margin-top: 10px;">PROYECTO CAVE-MAN 2026</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="section-title">📂 GRANDES LANZAMIENTOS</div>
+        <div class="game-grid">
+            <a href="DOG TCG/tcg sobres.html" class="game-card" style="border-color: gold; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);">
+                <span class="badge" style="background:gold; color:black">PACKS</span>
+                <div class="icon">🃏</div>
+                <div class="game-name">DOG TCG SOBRES</div>
+            </a>
+
+            <a href="HOTEL TERROR/hotel_pesadilla.html" class="game-card" style="border-color: var(--horror-red); box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);">
+                <span class="badge" style="background:var(--horror-red);">SOLO PC</span>
+                <div class="icon">🏨</div>
+                <div class="game-name">HOTEL TERROR</div>
+            </a>
+
+            <a href="BAJOELCIELO/index.html" class="game-card" style="border-color: var(--soul-purple); box-shadow: 0 0 15px rgba(163, 73, 164, 0.2);">
+                <div class="icon">🌌</div>
+                <div class="game-name">BAJO EL CIELO</div>
+            </a>
+        </div>
+
+        <div class="section-title">🕹️ COLECCIÓN DIEDEB</div>
+        <div class="game-grid">
+            <a href="DOG TCG/perro.html" class="game-card"><div class="icon">🐕</div><div class="game-name">DOG CHAMPIONS</div></a>
+            
+            <a href="warrior.html" class="game-card" style="border-color: #ff8000;">
+                <span class="badge" style="background:#ff8000;">SOLO PC</span>
+                <div class="icon">⚔️</div>
+                <div class="game-name">WARRIOR</div>
+            </a>
+
+            <a href="restaurante.html" class="game-card"><div class="icon">🍳</div><div class="game-name">RESTAURANTE CHAFA</div></a>
+            <a href="SABRITAS.html" class="game-card"><div class="icon">🍟</div><div class="game-name">SABRITAS</div></a>
+            <a href="Backrooms.html" class="game-card"><div class="icon">👁️</div><div class="game-name">BACKROOMS</div></a>
+            <a href="mafioso.html" class="game-card"><div class="icon">🕶️</div><div class="game-name">MAFIOSO</div></a>
+            <a href="shooter_diedeb.html" class="game-card"><div class="icon">🔫</div><div class="game-name">SHOOTER</div></a>
+            <a href="futbol_diedeb.html" class="game-card"><div class="icon">⚽</div><div class="game-name">FÚTBOL</div></a>
+            <a href="rpg_bosses.html" class="game-card"><div class="icon">👺</div><div class="game-name">RPG BOSSES</div></a>
+            <a href="juego_imperio.html" class="game-card"><div class="icon">🏰</div><div class="game-name">IMPERIO</div></a>
+            <a href="tecnology simulator.html" class="game-card"><div class="icon">🖥️</div><div class="game-name">TECH SIM</div></a>
+            <a href="hacker_simulator.html" class="game-card"><div class="icon">👨‍💻</div><div class="game-name">HACKER SIM</div></a>
+            <a href="you.html" class="game-card"><div class="icon">🤳</div><div class="game-name">INFLUENCER</div></a>
+            <a href="crea.html" class="game-card"><div class="icon">🛡️</div><div class="game-name">CREA EQUIPO</div></a>
+            <a href="hilux_racing.html" class="game-card"><div class="icon">🛻</div><div class="game-name">HILUX RACING</div></a>
+            <a href="barco_infinito.html" class="game-card"><div class="icon">⛵</div><div class="game-name">BARCO INFINITO</div></a>
+            <a href="infinite_lift.html" class="game-card"><div class="icon">🛗</div><div class="game-name">INFINITE LIFT</div></a>
+            <a href="corre_vida.html" class="game-card"><div class="icon">🏃</div><div class="game-name">CORRE VIDA</div></a>
+        </div>
+    </div>
+
+    <footer>© 2026 DIEDEB GAMES - ALL RIGHTS RESERVED</footer>
+
+    <script>
+        function handleAuth() {
+            const u = document.getElementById('username').value;
+            if(u.length < 2) return alert("Ingresa un usuario");
+            localStorage.setItem('diedeb_session', u);
+            location.reload();
+        }
+        function logout() { localStorage.removeItem('diedeb_session'); location.reload(); }
+        window.onload = () => {
+            const session = localStorage.getItem('diedeb_session');
+            if(session) {
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('user-bar').style.display = 'flex';
+                document.getElementById('display-user').innerText = session.toUpperCase();
+            }
+        };
+    </script>
+</body>
+</html>

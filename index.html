@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DIEDEB GAMES - COSMOS REPARADO</title>
+    <title>DIEDEB GAMES - PORTAL FINAL</title>
     <style>
         :root {
             --neon-green: #ccff00; --neon-blue: #00ffff; --dark-bg: #000;
@@ -15,78 +15,76 @@
             font-family: 'Arial Black', sans-serif; overflow-x: hidden;
         }
 
-        /* --- FONDO ESPACIAL --- */
+        /* --- FONDO GALÁCTICO --- */
         .universe { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, #0a0a25 0%, #000 100%); }
 
         .black-hole {
-            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            width: 180px; height: 180px; background: #000; border-radius: 50%;
-            box-shadow: 0 0 40px #fff, 0 0 100px var(--soul-purple);
+            position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%);
+            width: 200px; height: 200px; background: #000; border-radius: 50%;
+            box-shadow: 0 0 50px #fff, 0 0 100px var(--soul-purple);
+            animation: pulse 4s infinite alternate;
         }
+        @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.1); } }
 
-        /* Meteoros cada 15s con estela larga */
+        /* Meteoros */
         @keyframes shoot {
             0% { transform: translate(120vw, -20vh) rotate(-45deg); opacity: 1; }
             100% { transform: translate(-50vw, 100vh) rotate(-45deg); opacity: 0; }
         }
         .meteor {
             position: absolute; width: 300px; height: 4px; border-radius: 999px;
-            animation: shoot 2.5s linear infinite;
+            animation: shoot 3s linear infinite;
         }
 
-        /* Planetas */
-        .planet { position: absolute; border-radius: 50%; box-shadow: inset -20px -20px 30px rgba(0,0,0,0.8); animation: float 6s infinite ease-in-out; }
-        .mars { width: 100px; height: 100px; background: radial-gradient(circle at 30% 30%, #ff4500, #5a1a00); top: 10%; left: 5%; }
-        .neptune { width: 140px; height: 140px; background: radial-gradient(circle at 30% 30%, #00aaff, #001a5a); bottom: 10%; right: 5%; }
-
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
-
-        /* --- INTERFAZ --- */
-        header { padding: 60px 20px; text-align: center; }
+        /* --- MENÚ --- */
+        header { padding: 60px 20px 20px; text-align: center; }
         h1 { 
-            font-size: clamp(40px, 12vw, 80px); color: #fff;
-            text-shadow: 0 0 20px var(--neon-green), 0 0 50px var(--neon-green);
+            font-size: clamp(35px, 10vw, 80px); color: #fff; margin: 0;
+            text-shadow: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green);
         }
 
-        .container { padding: 0 20px 100px; max-width: 1200px; margin: 0 auto; position: relative; }
-        .section-title { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-top: 40px; border-left: 5px solid var(--neon-blue); padding-left: 15px; }
+        .container { padding: 0 15px 100px; max-width: 1200px; margin: 0 auto; }
+        .section-title { 
+            color: var(--neon-blue); margin-top: 40px; margin-bottom: 20px;
+            border-bottom: 2px solid var(--neon-blue); display: inline-block; font-size: 20px;
+        }
 
-        .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; margin-top: 20px; }
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
+        
         .game-card { 
-            background: rgba(255, 255, 255, 0.05); border: 2px solid #333; border-radius: 20px;
-            padding: 30px 15px; text-decoration: none; color: white; transition: 0.4s;
-            backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; position: relative;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid #333; border-radius: 15px;
+            padding: 25px 10px; text-decoration: none; color: white; transition: 0.3s;
+            backdrop-filter: blur(5px); display: flex; flex-direction: column; align-items: center; 
+            position: relative;
         }
         .game-card:hover { 
-            border-color: var(--neon-green); transform: scale(1.1);
-            box-shadow: 0 0 30px var(--neon-green); background: rgba(204, 255, 0, 0.1);
+            border-color: var(--neon-green); transform: translateY(-5px);
+            background: rgba(204, 255, 0, 0.15); box-shadow: 0 0 20px var(--neon-green);
         }
 
-        .badge { position: absolute; top: 10px; right: 10px; font-size: 9px; padding: 4px 8px; border-radius: 5px; font-weight: bold; }
-        .icon { font-size: 45px; margin-bottom: 10px; }
-        
-        /* Estilo para el Login */
+        .badge { position: absolute; top: 8px; right: 8px; font-size: 9px; padding: 3px 6px; border-radius: 4px; font-weight: bold; }
+        .icon { font-size: 40px; margin-bottom: 10px; }
+        .game-name { font-size: 11px; font-weight: bold; text-align: center; line-height: 1.2; }
+
+        /* Login */
         #auth-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .auth-box { background: #050505; padding: 40px; border: 3px solid var(--neon-green); border-radius: 30px; text-align: center; }
-        input { background: #000; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 8px; width: 200px; margin-bottom: 20px; text-align: center; }
-        .auth-btn { background: var(--neon-green); color: #000; border: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .auth-box { background: #111; padding: 30px; border: 2px solid var(--neon-green); border-radius: 20px; text-align: center; width: 80%; max-width: 300px; }
+        input { background: #000; color: #fff; border: 1px solid #555; padding: 10px; border-radius: 5px; margin-bottom: 15px; width: 80%; text-align: center; }
+        .auth-btn { background: var(--neon-green); color: #000; border: none; padding: 10px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="universe">
         <div class="black-hole"></div>
-        <div class="planet mars"></div>
-        <div class="planet neptune"></div>
         <div class="meteor" style="top:15%; background: linear-gradient(to left, transparent, var(--neon-blue)); animation-delay: 0s;"></div>
-        <div class="meteor" style="top:45%; background: linear-gradient(to left, transparent, var(--horror-red)); animation-delay: 15s;"></div>
-        <div class="meteor" style="top:75%; background: linear-gradient(to left, transparent, var(--neon-green)); animation-delay: 30s;"></div>
+        <div class="meteor" style="top:55%; background: linear-gradient(to left, transparent, var(--horror-red)); animation-delay: 1.5s;"></div>
     </div>
 
     <div id="auth-overlay">
         <div class="auth-box">
-            <h2 style="color: var(--neon-green);">SISTEMA DIEDEB</h2>
-            <input type="text" id="username" placeholder="PILOTO ID">
+            <h2 style="color: var(--neon-green); margin-top:0;">ACCESO</h2>
+            <input type="text" id="username" placeholder="NOMBRE">
             <br>
             <button class="auth-btn" onclick="handleAuth()">ENTRAR</button>
         </div>
@@ -94,18 +92,19 @@
 
     <header>
         <h1>DIEDEB GAMES</h1>
-        <p style="color: var(--neon-blue); letter-spacing: 5px;">ESTACIÓN ESPACIAL 2026</p>
+        <p style="color: var(--neon-blue); letter-spacing: 3px; font-size: 12px;">BIBLIOTECA TOTAL</p>
     </header>
 
     <div class="container">
-        <div class="section-title">⭐ MISIONES DESTACADAS</div>
+        
+        <div class="section-title">🔥 LO PRINCIPAL</div>
         <div class="game-grid">
-            <a href="%20%3Ca%20href=%22BAJOELCIELO/cap1.html" class="game-card" style="border-color: var(--soul-purple);">
+            <a href="cap1.html" class="game-card" style="border-color: var(--soul-purple);">
                 <span class="badge" style="background:var(--soul-purple);">HISTORIA</span>
                 <div class="icon">🌌</div>
-                <div class="game-name">BAJO EL CIELO</div>
+                <div class="game-name">BAJO EL CIELO (CAP 1)</div>
             </a>
-            
+
             <a href="tcgsobres.html" class="game-card" style="border-color: var(--gold);">
                 <span class="badge" style="background:var(--gold); color:#000;">CARTAS</span>
                 <div class="icon">🃏</div>
@@ -113,27 +112,42 @@
             </a>
 
             <a href="hotel_pesadilla.html" class="game-card" style="border-color: var(--horror-red);">
-                <span class="badge" style="background:var(--horror-red);">PC</span>
+                <span class="badge" style="background:var(--horror-red);">TERROR</span>
                 <div class="icon">🏨</div>
-                <div class="game-name">HOTEL TERROR</div>
+                <div class="game-name">HOTEL PESADILLA</div>
             </a>
         </div>
 
-        <div class="section-title">📂 BASE DE DATOS</div>
+        <div class="section-title">📂 TODA LA BIBLIOTECA</div>
         <div class="game-grid">
+            <a href="cap2.html" class="game-card"><div class="icon">🌑</div><div class="game-name">CAPÍTULO 2</div></a>
+            <a href="cap3.html" class="game-card"><div class="icon">🌗</div><div class="game-name">CAPÍTULO 3</div></a>
+            <a href="cap4.html" class="game-card"><div class="icon">🌕</div><div class="game-name">CAPÍTULO 4</div></a>
             <a href="perro.html" class="game-card"><div class="icon">🐕</div><div class="game-name">DOG CHAMPIONS</div></a>
             <a href="sabritas.html" class="game-card"><div class="icon">🍟</div><div class="game-name">SABRITAS</div></a>
             <a href="warrior.html" class="game-card"><div class="icon">⚔️</div><div class="game-name">WARRIOR</div></a>
+            <a href="restaurante.html" class="game-card"><div class="icon">🍳</div><div class="game-name">RESTAURANTE</div></a>
             <a href="Backrooms.html" class="game-card"><div class="icon">👁️</div><div class="game-name">BACKROOMS</div></a>
+            <a href="mafioso.html" class="game-card"><div class="icon">🕶️</div><div class="game-name">MAFIOSO</div></a>
+            <a href="shooter_diedeb.html" class="game-card"><div class="icon">🔫</div><div class="game-name">SHOOTER</div></a>
             <a href="futbol_diedeb.html" class="game-card"><div class="icon">⚽</div><div class="game-name">FÚTBOL</div></a>
+            <a href="rpg_bosses.html" class="game-card"><div class="icon">👺</div><div class="game-name">RPG BOSSES</div></a>
+            <a href="juego_imperio.html" class="game-card"><div class="icon">🏰</div><div class="game-name">IMPERIO</div></a>
+            <a href="tecnology simulator.html" class="game-card"><div class="icon">🖥️</div><div class="game-name">TECH SIM</div></a>
+            <a href="hacker_simulator.html" class="game-card"><div class="icon">👨‍💻</div><div class="game-name">HACKER SIM</div></a>
+            <a href="you.html" class="game-card"><div class="icon">🤳</div><div class="game-name">INFLUENCER</div></a>
+            <a href="crea.html" class="game-card"><div class="icon">🛡️</div><div class="game-name">CREA TU EQUIPO</div></a>
             <a href="hilux_racing.html" class="game-card"><div class="icon">🛻</div><div class="game-name">HILUX RACING</div></a>
+            <a href="barco_infinito.html" class="game-card"><div class="icon">⛵</div><div class="game-name">BARCO INFINITO</div></a>
+            <a href="infinite_lift.html" class="game-card"><div class="icon">🛗</div><div class="game-name">INFINITE LIFT</div></a>
+            <a href="corre_vida.html" class="game-card"><div class="icon">🏃</div><div class="game-name">CORRE VIDA</div></a>
         </div>
     </div>
 
     <script>
         function handleAuth() {
             const u = document.getElementById('username').value;
-            if(u.length < 2) return alert("ERROR DE ACCESO.");
+            if(u.length < 1) return alert("¡ESCRIBE ALGO!");
             localStorage.setItem('diedeb_session', u);
             location.reload();
         }
@@ -145,4 +159,3 @@
     </script>
 </body>
 </html>
-

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DIEDEB GAMES - PORTAL FINAL</title>
+    <title>DIEDEB GAMES - VICTORIA</title>
     <style>
         :root {
             --neon-green: #ccff00; --neon-blue: #00ffff; --dark-bg: #000;
@@ -15,16 +15,16 @@
             font-family: 'Arial Black', sans-serif; overflow-x: hidden;
         }
 
-        /* --- FONDO GALÁCTICO --- */
+        /* --- FONDO DEL UNIVERSO --- */
         .universe { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, #0a0a25 0%, #000 100%); }
 
         .black-hole {
-            position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%);
-            width: 200px; height: 200px; background: #000; border-radius: 50%;
+            position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%);
+            width: 220px; height: 220px; background: #000; border-radius: 50%;
             box-shadow: 0 0 50px #fff, 0 0 100px var(--soul-purple);
-            animation: pulse 4s infinite alternate;
+            animation: pulse 3s infinite alternate;
         }
-        @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.1); } }
+        @keyframes pulse { from { box-shadow: 0 0 50px #fff, 0 0 100px var(--soul-purple); } to { box-shadow: 0 0 70px #fff, 0 0 150px var(--neon-blue); } }
 
         /* Meteoros */
         @keyframes shoot {
@@ -33,7 +33,7 @@
         }
         .meteor {
             position: absolute; width: 300px; height: 4px; border-radius: 999px;
-            animation: shoot 3s linear infinite;
+            animation: shoot 2s linear infinite;
         }
 
         /* --- MENÚ --- */
@@ -83,8 +83,8 @@
 
     <div id="auth-overlay">
         <div class="auth-box">
-            <h2 style="color: var(--neon-green); margin-top:0;">ACCESO</h2>
-            <input type="text" id="username" placeholder="NOMBRE">
+            <h2 style="color: var(--neon-green); margin-top:0;">SISTEMA LISTO</h2>
+            <input type="text" id="username" placeholder="NOMBRE DE USUARIO">
             <br>
             <button class="auth-btn" onclick="handleAuth()">ENTRAR</button>
         </div>
@@ -92,7 +92,7 @@
 
     <header>
         <h1>DIEDEB GAMES</h1>
-        <p style="color: var(--neon-blue); letter-spacing: 3px; font-size: 12px;">BIBLIOTECA TOTAL</p>
+        <p style="color: var(--neon-blue); letter-spacing: 3px; font-size: 12px;">¡TODO FUNCIONA!</p>
     </header>
 
     <div class="container">
@@ -118,16 +118,18 @@
             </a>
         </div>
 
-        <div class="section-title">📂 TODA LA BIBLIOTECA</div>
+        <div class="section-title">📂 BIBLIOTECA COMPLETA</div>
         <div class="game-grid">
             <a href="cap2.html" class="game-card"><div class="icon">🌑</div><div class="game-name">CAPÍTULO 2</div></a>
             <a href="cap3.html" class="game-card"><div class="icon">🌗</div><div class="game-name">CAPÍTULO 3</div></a>
             <a href="cap4.html" class="game-card"><div class="icon">🌕</div><div class="game-name">CAPÍTULO 4</div></a>
+            <a href="cap5.html" class="game-card"><div class="icon">🌝</div><div class="game-name">CAPÍTULO 5</div></a>
+            
             <a href="perro.html" class="game-card"><div class="icon">🐕</div><div class="game-name">DOG CHAMPIONS</div></a>
             <a href="sabritas.html" class="game-card"><div class="icon">🍟</div><div class="game-name">SABRITAS</div></a>
             <a href="warrior.html" class="game-card"><div class="icon">⚔️</div><div class="game-name">WARRIOR</div></a>
             <a href="restaurante.html" class="game-card"><div class="icon">🍳</div><div class="game-name">RESTAURANTE</div></a>
-            <a href="Backrooms.html" class="game-card"><div class="icon">👁️</div><div class="game-name">BACKROOMS</div></a>
+            <a href="backrooms.html" class="game-card"><div class="icon">👁️</div><div class="game-name">BACKROOMS</div></a>
             <a href="mafioso.html" class="game-card"><div class="icon">🕶️</div><div class="game-name">MAFIOSO</div></a>
             <a href="shooter_diedeb.html" class="game-card"><div class="icon">🔫</div><div class="game-name">SHOOTER</div></a>
             <a href="futbol_diedeb.html" class="game-card"><div class="icon">⚽</div><div class="game-name">FÚTBOL</div></a>
@@ -136,7 +138,7 @@
             <a href="tecnology simulator.html" class="game-card"><div class="icon">🖥️</div><div class="game-name">TECH SIM</div></a>
             <a href="hacker_simulator.html" class="game-card"><div class="icon">👨‍💻</div><div class="game-name">HACKER SIM</div></a>
             <a href="you.html" class="game-card"><div class="icon">🤳</div><div class="game-name">INFLUENCER</div></a>
-            <a href="crea.html" class="game-card"><div class="icon">🛡️</div><div class="game-name">CREA TU EQUIPO</div></a>
+            <a href="crea.html" class="game-card"><div class="icon">🛡️</div><div class="game-name">CREA EQUIPO</div></a>
             <a href="hilux_racing.html" class="game-card"><div class="icon">🛻</div><div class="game-name">HILUX RACING</div></a>
             <a href="barco_infinito.html" class="game-card"><div class="icon">⛵</div><div class="game-name">BARCO INFINITO</div></a>
             <a href="infinite_lift.html" class="game-card"><div class="icon">🛗</div><div class="game-name">INFINITE LIFT</div></a>
@@ -159,3 +161,4 @@
     </script>
 </body>
 </html>
+

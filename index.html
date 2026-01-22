@@ -3,162 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DIEDEB GAMES - VICTORIA</title>
+    <title>DIEDEB GAMES - ULTIMATE</title>
     <style>
         :root {
-            --neon-green: #ccff00; --neon-blue: #00ffff; --dark-bg: #000;
-            --soul-purple: #a349a4; --horror-red: #ff0000; --gold: #ffd700;
+            --neon-green: #0aff60;
+            --neon-blue: #00f3ff;
+            --neon-purple: #bd00ff;
+            --pc-orange: #ff9900;
+            --glass-bg: rgba(20, 20, 25, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
         }
 
         body { 
-            margin: 0; background: #000; color: white; 
-            font-family: 'Arial Black', sans-serif; overflow-x: hidden;
+            margin: 0; 
+            background-color: #050505; 
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            overflow-x: hidden;
         }
 
-        /* --- FONDO DEL UNIVERSO --- */
-        .universe { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, #0a0a25 0%, #000 100%); }
-
-        .black-hole {
-            position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%);
-            width: 220px; height: 220px; background: #000; border-radius: 50%;
-            box-shadow: 0 0 50px #fff, 0 0 100px var(--soul-purple);
-            animation: pulse 3s infinite alternate;
+        /* --- FONDO ANIMADO "WARP SPEED" --- */
+        .background-fx {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: radial-gradient(circle at center, #1a0b2e 0%, #000000 100%);
         }
-        @keyframes pulse { from { box-shadow: 0 0 50px #fff, 0 0 100px var(--soul-purple); } to { box-shadow: 0 0 70px #fff, 0 0 150px var(--neon-blue); } }
-
-        /* Meteoros */
-        @keyframes shoot {
-            0% { transform: translate(120vw, -20vh) rotate(-45deg); opacity: 1; }
-            100% { transform: translate(-50vw, 100vh) rotate(-45deg); opacity: 0; }
+        .stars {
+            position: absolute; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            animation: starsMove 100s linear infinite;
+            opacity: 0.5;
         }
-        .meteor {
-            position: absolute; width: 300px; height: 4px; border-radius: 999px;
-            animation: shoot 2s linear infinite;
-        }
+        @keyframes starsMove { from { background-position: 0 0; } to { background-position: 0 1000px; } }
 
-        /* --- MENÚ --- */
-        header { padding: 60px 20px 20px; text-align: center; }
-        h1 { 
-            font-size: clamp(35px, 10vw, 80px); color: #fff; margin: 0;
-            text-shadow: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green);
+        /* --- LOGIN FUTURISTA --- */
+        #auth-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(10px);
         }
-
-        .container { padding: 0 15px 100px; max-width: 1200px; margin: 0 auto; }
-        .section-title { 
-            color: var(--neon-blue); margin-top: 40px; margin-bottom: 20px;
-            border-bottom: 2px solid var(--neon-blue); display: inline-block; font-size: 20px;
+        .auth-box {
+            background: rgba(0, 0, 0, 0.8); border: 1px solid var(--neon-green);
+            padding: 40px; border-radius: 20px; text-align: center;
+            box-shadow: 0 0 50px rgba(10, 255, 96, 0.2);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
-        .game-card { 
-            background: rgba(255, 255, 255, 0.05); border: 1px solid #333; border-radius: 15px;
-            padding: 25px 10px; text-decoration: none; color: white; transition: 0.3s;
-            backdrop-filter: blur(5px); display: flex; flex-direction: column; align-items: center; 
-            position: relative;
+        .auth-input {
+            background: #111; border: 1px solid #333; color: var(--neon-green);
+            padding: 15px; width: 200px; text-align: center; font-size: 16px;
+            border-radius: 10px; margin-bottom: 20px; outline: none; letter-spacing: 2px;
+            transition: 0.3s;
         }
-        .game-card:hover { 
-            border-color: var(--neon-green); transform: translateY(-5px);
-            background: rgba(204, 255, 0, 0.15); box-shadow: 0 0 20px var(--neon-green);
+        .auth-input:focus { border-color: var(--neon-green); box-shadow: 0 0 15px rgba(10, 255, 96, 0.3); }
+        
+        .btn-start {
+            background: var(--neon-green); color: black; border: none;
+            padding: 12px 30px; border-radius: 30px; font-weight: 900; cursor: pointer;
+            font-size: 16px; text-transform: uppercase; transition: 0.3s;
+            box-shadow: 0 0 20px rgba(10, 255, 96, 0.4);
+        }
+        .btn-start:hover { transform: scale(1.1); box-shadow: 0 0 40px rgba(10, 255, 96, 0.8); }
+
+        /* --- ENCABEZADO --- */
+        header { padding: 80px 20px 40px; text-align: center; }
+        h1 {
+            font-size: clamp(40px, 12vw, 90px); margin: 0; line-height: 1;
+            background: linear-gradient(to right, #fff, var(--neon-blue));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+            font-weight: 900; letter-spacing: -2px;
+        }
+        .subtitle { color: #888; letter-spacing: 5px; margin-top: 10px; font-size: 12px; text-transform: uppercase; }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px 100px; }
+
+        .section-label {
+            display: flex; align-items: center; gap: 15px; margin: 60px 0 30px;
+        }
+        .line { height: 2px; flex-grow: 1; background: linear-gradient(90deg, var(--neon-purple), transparent); }
+        .label-text { 
+            color: var(--neon-purple); font-weight: bold; font-size: 20px; text-transform: uppercase; 
+            text-shadow: 0 0 10px var(--neon-purple);
         }
 
-        .badge { position: absolute; top: 8px; right: 8px; font-size: 9px; padding: 3px 6px; border-radius: 4px; font-weight: bold; }
-        .icon { font-size: 40px; margin-bottom: 10px; }
-        .game-name { font-size: 11px; font-weight: bold; text-align: center; line-height: 1.2; }
+        /* --- GRID DE JUEGOS --- */
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px;
+        }
 
-        /* Login */
-        #auth-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .auth-box { background: #111; padding: 30px; border: 2px solid var(--neon-green); border-radius: 20px; text-align: center; width: 80%; max-width: 300px; }
-        input { background: #000; color: #fff; border: 1px solid #555; padding: 10px; border-radius: 5px; margin-bottom: 15px; width: 80%; text-align: center; }
-        .auth-btn { background: var(--neon-green); color: #000; border: none; padding: 10px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .card {
+            background: var(--glass-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px; padding: 25px 15px;
+            text-decoration: none; color: white;
+            display: flex; flex-direction: column; align-items: center;
+            position: relative; overflow: hidden;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Efecto Hover Brutal */
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--neon-blue);
+            background: rgba(0, 243, 255, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 243, 255, 0.2);
+        }
+        .card:hover .icon { transform: scale(1.2) rotate(5deg); filter: drop-shadow(0 0 15px white); }
+
+        .icon { font-size: 45px; margin-bottom: 15px; transition: 0.4s; }
+        .name { font-size: 12px; font-weight: bold; text-align: center; color: #ddd; letter-spacing: 1px; }
+        
+        /* Badges (Etiquetas) */
+        .badge {
+            position: absolute; top: 10px; right: 10px;
+            font-size: 8px; font-weight: 900; padding: 4px 8px; border-radius: 6px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        /* Colores especiales por tipo */
+        .story-mode { border-color: var(--neon-purple); }
+        .story-mode:hover { box-shadow: 0 10px 50px rgba(189, 0, 255, 0.3); border-color: var(--neon-purple); background: rgba(189, 0, 255, 0.1); }
+        
+        .horror-mode { border-color: #ff0055; }
+        .horror-mode:hover { box-shadow: 0 10px 50px rgba(255, 0, 85, 0.3); border-color: #ff0055; background: rgba(255, 0, 85, 0.1); }
+
     </style>
 </head>
 <body>
 
-    <div class="universe">
-        <div class="black-hole"></div>
-        <div class="meteor" style="top:15%; background: linear-gradient(to left, transparent, var(--neon-blue)); animation-delay: 0s;"></div>
-        <div class="meteor" style="top:55%; background: linear-gradient(to left, transparent, var(--horror-red)); animation-delay: 1.5s;"></div>
-    </div>
+    <div class="background-fx"><div class="stars"></div></div>
 
     <div id="auth-overlay">
         <div class="auth-box">
-            <h2 style="color: var(--neon-green); margin-top:0;">SISTEMA LISTO</h2>
-            <input type="text" id="username" placeholder="NOMBRE DE USUARIO">
+            <div style="font-size: 50px; margin-bottom: 20px;">🛡️</div>
+            <h2 style="color: white; margin-top:0;">IDENTIFÍCATE</h2>
+            <input type="text" id="username" class="auth-input" placeholder="TU NOMBRE AQUÍ">
             <br>
-            <button class="auth-btn" onclick="handleAuth()">ENTRAR</button>
+            <button class="btn-start" onclick="login()">ENTRAR</button>
         </div>
     </div>
 
     <header>
-        <h1>DIEDEB GAMES</h1>
-        <p style="color: var(--neon-blue); letter-spacing: 3px; font-size: 12px;">¡TODO FUNCIONA!</p>
+        <h1>DIEDEB</h1>
+        <div class="subtitle">ESTACIÓN DE JUEGOS VIRTUAL</div>
     </header>
 
     <div class="container">
         
-        <div class="section-title">🔥 LO PRINCIPAL</div>
-        <div class="game-grid">
-            <a href="cap1.html" class="game-card" style="border-color: var(--soul-purple);">
-                <span class="badge" style="background:var(--soul-purple);">HISTORIA</span>
+        <div class="section-label">
+            <span class="label-text" style="color:var(--neon-green)">⭐ INICIAR AVENTURA</span>
+            <div class="line" style="background: linear-gradient(90deg, var(--neon-green), transparent);"></div>
+        </div>
+
+        <div class="grid">
+            <a href="cap1.html" class="card story-mode">
+                <span class="badge" style="background:var(--pc-orange); color:black;">SOLO PC</span>
                 <div class="icon">🌌</div>
-                <div class="game-name">BAJO EL CIELO (CAP 1)</div>
+                <div class="name">BAJO EL CIELO<br><span style="color:var(--neon-purple); font-size:10px;">CAPÍTULO 1</span></div>
             </a>
+        </div>
 
-            <a href="tcgsobres.html" class="game-card" style="border-color: var(--gold);">
-                <span class="badge" style="background:var(--gold); color:#000;">CARTAS</span>
+
+        <div class="section-label">
+            <span class="label-text" style="color: var(--neon-blue)">🔥 POPULARES</span>
+            <div class="line" style="background: linear-gradient(90deg, var(--neon-blue), transparent);"></div>
+        </div>
+
+        <div class="grid">
+            <a href="tcgsobres.html" class="card" style="border-color: gold;">
+                <span class="badge" style="background:gold; color:black;">CARTAS</span>
                 <div class="icon">🃏</div>
-                <div class="game-name">DOG TCG SOBRES</div>
+                <div class="name">DOG TCG</div>
             </a>
 
-            <a href="hotel_pesadilla.html" class="game-card" style="border-color: var(--horror-red);">
-                <span class="badge" style="background:var(--horror-red);">TERROR</span>
+            <a href="hotel_pesadilla.html" class="card horror-mode">
+                <span class="badge" style="background:#ff0055;">REALIDAD VIRTUAL</span>
                 <div class="icon">🏨</div>
-                <div class="game-name">HOTEL PESADILLA</div>
+                <div class="name">HOTEL PESADILLA</div>
+            </a>
+
+            <a href="hilux_racing.html" class="card">
+                <div class="icon">🛻</div>
+                <div class="name">HILUX RACING</div>
+            </a>
+
+            <a href="futbol_diedeb.html" class="card">
+                <span class="badge" style="background:var(--pc-orange); color:black;">SOLO PC</span>
+                <div class="icon">⚽</div>
+                <div class="name">FÚTBOL PRO</div>
             </a>
         </div>
 
-        <div class="section-title">📂 BIBLIOTECA COMPLETA</div>
-        <div class="game-grid">
-            <a href="cap2.html" class="game-card"><div class="icon">🌑</div><div class="game-name">CAPÍTULO 2</div></a>
-            <a href="cap3.html" class="game-card"><div class="icon">🌗</div><div class="game-name">CAPÍTULO 3</div></a>
-            <a href="cap4.html" class="game-card"><div class="icon">🌕</div><div class="game-name">CAPÍTULO 4</div></a>
-            <a href="cap5.html" class="game-card"><div class="icon">🌝</div><div class="game-name">CAPÍTULO 5</div></a>
-            
-            <a href="perro.html" class="game-card"><div class="icon">🐕</div><div class="game-name">DOG CHAMPIONS</div></a>
-            <a href="sabritas.html" class="game-card"><div class="icon">🍟</div><div class="game-name">SABRITAS</div></a>
-            <a href="warrior.html" class="game-card"><div class="icon">⚔️</div><div class="game-name">WARRIOR</div></a>
-            <a href="restaurante.html" class="game-card"><div class="icon">🍳</div><div class="game-name">RESTAURANTE</div></a>
-            <a href="backrooms.html" class="game-card"><div class="icon">👁️</div><div class="game-name">BACKROOMS</div></a>
-            <a href="mafioso.html" class="game-card"><div class="icon">🕶️</div><div class="game-name">MAFIOSO</div></a>
-            <a href="shooter_diedeb.html" class="game-card"><div class="icon">🔫</div><div class="game-name">SHOOTER</div></a>
-            <a href="futbol_diedeb.html" class="game-card"><div class="icon">⚽</div><div class="game-name">FÚTBOL</div></a>
-            <a href="rpg_bosses.html" class="game-card"><div class="icon">👺</div><div class="game-name">RPG BOSSES</div></a>
-            <a href="juego_imperio.html" class="game-card"><div class="icon">🏰</div><div class="game-name">IMPERIO</div></a>
-            <a href="tecnology simulator.html" class="game-card"><div class="icon">🖥️</div><div class="game-name">TECH SIM</div></a>
-            <a href="hacker_simulator.html" class="game-card"><div class="icon">👨‍💻</div><div class="game-name">HACKER SIM</div></a>
-            <a href="you.html" class="game-card"><div class="icon">🤳</div><div class="game-name">INFLUENCER</div></a>
-            <a href="crea.html" class="game-card"><div class="icon">🛡️</div><div class="game-name">CREA EQUIPO</div></a>
-            <a href="hilux_racing.html" class="game-card"><div class="icon">🛻</div><div class="game-name">HILUX RACING</div></a>
-            <a href="barco_infinito.html" class="game-card"><div class="icon">⛵</div><div class="game-name">BARCO INFINITO</div></a>
-            <a href="infinite_lift.html" class="game-card"><div class="icon">🛗</div><div class="game-name">INFINITE LIFT</div></a>
-            <a href="corre_vida.html" class="game-card"><div class="icon">🏃</div><div class="game-name">CORRE VIDA</div></a>
+
+        <div class="section-label">
+            <span class="label-text">📂 TODO EL ARCHIVO</span>
+            <div class="line"></div>
         </div>
+
+        <div class="grid">
+            <a href="perro.html" class="card"><div class="icon">🐕</div><div class="name">DOG CHAMPIONS</div></a>
+            <a href="sabritas.html" class="card"><div class="icon">🍟</div><div class="name">SABRITAS</div></a>
+            <a href="warrior.html" class="card">
+                <span class="badge" style="background:var(--pc-orange); color:black;">SOLO PC</span>
+                <div class="icon">⚔️</div><div class="name">WARRIOR</div>
+            </a>
+            <a href="restaurante.html" class="card"><div class="icon">🍳</div><div class="name">RESTAURANTE</div></a>
+            <a href="Backrooms.html" class="card horror-mode"><div class="icon">👁️</div><div class="name">BACKROOMS</div></a>
+            <a href="mafioso.html" class="card"><div class="icon">🕶️</div><div class="name">MAFIOSO</div></a>
+            <a href="shooter_diedeb.html" class="card"><div class="icon">🔫</div><div class="name">SHOOTER</div></a>
+            <a href="rpg_bosses.html" class="card"><div class="icon">👺</div><div class="name">RPG BOSSES</div></a>
+            <a href="juego_imperio.html" class="card"><div class="icon">🏰</div><div class="name">IMPERIO</div></a>
+            <a href="tecnology simulator.html" class="card"><div class="icon">🖥️</div><div class="name">TECH SIM</div></a>
+            <a href="hacker_simulator.html" class="card"><div class="icon">👨‍💻</div><div class="name">HACKER SIM</div></a>
+            <a href="you.html" class="card"><div class="icon">🤳</div><div class="name">INFLUENCER</div></a>
+            <a href="crea.html" class="card"><div class="icon">🛡️</div><div class="name">CREA EQUIPO</div></a>
+            <a href="barco_infinito.html" class="card"><div class="icon">⛵</div><div class="name">BARCO INFINITO</div></a>
+            <a href="infinite_lift.html" class="card"><div class="icon">🛗</div><div class="name">INFINITE LIFT</div></a>
+            <a href="corre_vida.html" class="card"><div class="icon">🏃</div><div class="name">CORRE VIDA</div></a>
+        </div>
+
+        <p style="text-align: center; color: #555; margin-top: 50px; font-size: 10px;">DIEDEB SYSTEM v3.1 // ONLINE</p>
     </div>
 
     <script>
-        function handleAuth() {
+        function login() {
             const u = document.getElementById('username').value;
-            if(u.length < 1) return alert("¡ESCRIBE ALGO!");
-            localStorage.setItem('diedeb_session', u);
-            location.reload();
+            if(u.trim().length < 1) return alert("¡NECESITO UN NOMBRE!");
+            localStorage.setItem('diedeb_user', u);
+            // Efecto de desvanecer
+            const overlay = document.getElementById('auth-overlay');
+            overlay.style.opacity = '0';
+            overlay.style.transition = '0.5s';
+            setTimeout(() => { overlay.style.display = 'none'; }, 500);
         }
+
+        // Auto login si ya entraste antes
         window.onload = () => {
-            if(localStorage.getItem('diedeb_session')) {
+            if(localStorage.getItem('diedeb_user')) {
                 document.getElementById('auth-overlay').style.display = 'none';
             }
-        };
+        }
     </script>
 </body>
 </html>
+
 

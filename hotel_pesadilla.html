@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Hotel de Pesadilla - Recepción</title>
+    <style>
+        body { background: #0a0a0a; color: white; font-family: 'Courier New', Courier, monospace; text-align: center; }
+        .hotel-map { display: grid; grid-template-columns: repeat(2, 200px); gap: 20px; justify-content: center; margin-top: 50px; }
+        .room { width: 200px; height: 150px; border: 2px solid #444; background: #1a1a1a; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .room:hover { border-color: #ff0000; box-shadow: 0 0 15px #ff0000; }
+        .selected { border-color: #00ff00 !important; background: #0a2e0a; }
+        #info-panel { margin-top: 30px; height: 100px; color: #00ff00; }
+        #next-level { display: none; margin-top: 20px; padding: 15px 30px; background: #800; color: white; border: none; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>RECEPCIÓN DEL HOTEL</h1>
+    <p>Haz clic en una habitación para ver sus características y asignar un monstruo.</p>
+
+    <div class="hotel-map">
+        <div class="room" onclick="inspectRoom(1, 'Sótano Húmedo', 'Ideal para Zombis')">HAB 1</div>
+        <div class="room" onclick="inspectRoom(2, 'Atico Oscuro', 'Perfecto para Vampiros')">HAB 2</div>
+        <div class="room" onclick="inspectRoom(3, 'Cueva de Huesos', 'Aquí vive el Dinosaurio')">HAB 3</div>
+        <div class="room" onclick="inspectRoom(4, 'Rincón Arácnido', 'Nido de la Araña')">HAB 4</div>
+    </div>
+
+    <div id="info-panel">
+        <h3 id="room-name">-</h3>
+        <p id="room-desc">Selecciona una habitación</p>
+        <button id="assign-btn" style="display:none" onclick="confirmRoom()">ASIGNAR MONSTRUO</button>
+    </div>
+
+    <button id="next-level" onclick="window.location.href='hotel_3d.html'">BAJAR AL SÓTANO (CONTINUAR)</button>
+
+    <script>
+        let currentRoom = null;
+        let assignedCount = 0;
+
+        function inspectRoom(id, name, desc) {
+            currentRoom = id;
+            document.getElementById('room-name').innerText = name;
+            document.getElementById('room-desc').innerText = desc;
+            document.getElementById('assign-btn').style.display = 'inline-block';
+        }
+
+        function confirmRoom() {
+            alert("¡Monstruo encerrado con éxito!");
+            document.querySelectorAll('.room')[currentRoom-1].classList.add('selected');
+            assignedCount++;
+            document.getElementById('assign-btn').style.display = 'none';
+            if(assignedCount >= 4) {
+                document.getElementById('next-level').style.display = 'block';
+                document.getElementById('info-panel').innerText = "TODAS LAS HABITACIONES LLENAS. EL TERROR COMIENZA.";
+            }
+        }
+    </script>
+</body>
+</html>

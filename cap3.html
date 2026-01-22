@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CAP 3 - LA IRA DE CHOP</title>
+    <style>
+        :root { --dark-blue: #050a14; --ghost-white: rgba(255,255,255,0.2); --blood: #660000; --gold: #ffd700; }
+        body { margin: 0; background: #000; color: white; font-family: 'Arial Black', sans-serif; overflow: hidden; }
+
+        /* ESCENARIO */
+        #stage { 
+            width: 100vw; height: 100vh; 
+            background: linear-gradient(to bottom, #1a1c2c, var(--dark-blue));
+            position: relative; transition: filter 2s;
+        }
+
+        /* EFECTO FLASHBACK */
+        #flashback {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; opacity: 0; pointer-events: none; z-index: 1000;
+            transition: opacity 1s;
+        }
+
+        /* PERSONAJES */
+        #player { 
+            width: 50px; height: 80px; background: #fff; position: absolute; 
+            bottom: 150px; left: 100px; box-shadow: 0 0 20px #fff; z-index: 10;
+            transition: left 0.1s linear;
+        }
+        #ghost-chap { 
+            position: absolute; bottom: 180px; font-size: 70px; 
+            opacity: 0; transition: 2s; filter: grayscale(1) blur(2px); 
+        }
+        #chop-boss { 
+            position: absolute; bottom: 150px; right: -250px; 
+            font-size: 110px; transition: 1.5s; filter: drop-shadow(0 0 20px red); 
+        }
+
+        /* DIÁLOGOS */
+        #dialog { 
+            position: fixed; bottom: 115px; width: 85%; left: 7.5%; 
+            background: rgba(0,0,0,0.95); border-left: 10px solid var(--blood);
+            padding: 25px; font-size: 24px; display: none; z-index: 2000;
+            border-radius: 0 15px 15px 0;
+        }
+
+        /* NIEVE OSCURA (CENIZAS) */
+        .ash { position: absolute; background: #444; width: 4px; height: 4px; animation: fall linear infinite; }
+        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); } }
+        
+        @keyframes shake {
+            0% { transform: translate(3px, 3px); }
+            50% { transform: translate(-3px, -3px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* CONTROLES MÓVILES */
+        #mobile-ui {
+            position: fixed; bottom: 20px; left: 0; width: 100%;
+            display: flex; justify-content: space-between; padding: 0 35px; box-sizing: border-box; z-index: 99999;
+        }
+        .m-btn { width: 75px; height: 75px; background: rgba(255,255,255,0.15); border: 2px solid white; border-radius: 50%; color: white; font-size: 25px; }
+        .m-action { width: 95px; height: 95px; background: rgba(255,0,0,0.2); border-color: red; font-weight: bold; }
+        @media (min-width: 1024px) { #mobile-ui { display: none; } }
+    </style>
+</head>
+<body>
+
+<div id="flashback"></div>
+
+<div id="stage">
+    <div id="player"></div>
+    <div id="ghost-chap">🐶</div>
+    <div id="chop-boss">🐺</div>
+    <div id="temple-silhouette" style="position:absolute; right:50px; top:100px; font-size:180px; opacity:0.1;">🏛️</div>
+</div>
+
+<div id="dialog">
+    <div id="msg"></div>
+    <p style="font-size:12px; color:var(--gold); margin-top:10px;">[Toca 'E' para avanzar]</p>
+</div>
+
+<div id="mobile-ui">
+    <div style="display:flex; gap:15px;">
+        <button class="m-btn" id="m-left">◀</button>
+        <button class="m-btn" id="m-right">▶</button>
+    </div>
+    <button class="m-btn m-action" id="m-e">E</button>
+</div>
+
+<script>
+    let pX = 100, stage = 0;
+    const player = document.getElementById('player');
+    const dialog = document.getElementById('dialog');
+    const msg = document.getElementById('msg');
+    const flashback = document.getElementById('flashback');
+
+    // Generar cenizas
+    for(let i=0; i<60; i++) {
+        let ash = document.createElement('div');
+        ash.className = 'ash';
+        ash.style.left = Math.random()*100+"vw";
+        ash.style.animationDuration = (Math.random()*4+3)+"s";
+        document.body.appendChild(ash);
+    }
+
+    function handleInput(key) {
+        if(dialog.style.display === "block") {
+            if(key === 'e') nextEvent();
+            return;
+        }
+        if(key === "arrowright" || key === "d") {
+            pX += 20;
+            player.style.left = pX + "px";
+            if(pX > 400 && stage === 0) startCinematic();
+        }
+        if(key === "arrowleft" || key === "a") {
+            if(pX > 0) pX -= 20;
+            player.style.left = pX + "px";
+        }
+    }
+
+    window.addEventListener('keydown', (e) => handleInput(e.key.toLowerCase()));
+    document.getElementById('m-left').onclick = () => handleInput("arrowleft");
+    document.getElementById('m-right').onclick = () => handleInput("arrowright");
+    document.getElementById('m-e').onclick = () => handleInput("e");
+
+    function showMsg(t) {
+        dialog.style.display = "block";
+        msg.innerText = t;
+    }
+
+    function startCinematic() {
+        stage = 1;
+        showMsg("Caminas sobre la nieve teñida de rojo. El silencio es absoluto.");
+    }
+
+    function nextEvent() {
+        dialog.style.display = "none";
+
+        if(stage === 1) {
+            flashback.style.opacity = "0.4";
+            const ghost = document.getElementById('ghost-chap');
+            ghost.style.left = (pX + 150) + "px";
+            ghost.style.opacity = "0.4";
+            showMsg("El fantasma de Chap aparece por un segundo... Sus ojos reflejan decepción.");
+            stage = 2;
+        }
+        else if(stage === 2) {
+            flashback.style.opacity = "0";
+            document.getElementById('ghost-chap').style.opacity = "0";
+            showMsg("Llegas a la entrada del Templo. La nieve se vuelve negra.");
+            stage = 3;
+        }
+        else if(stage === 3) {
+            document.body.style.animation = "shake 0.4s infinite";
+            document.getElementById('chop-boss').style.right = "120px"; 
+            showMsg("¡UN GRUÑIDO DESGARRADOR RETUMBA EN EL TEMPLO!");
+            stage = 4;
+        }
+        else if(stage === 4) {
+            document.body.style.animation = "none";
+            showMsg("Chop: 'Mi hermano te dio su vida... y tú se la arrebataste'.");
+            stage = 5;
+        }
+        else if(stage === 5) {
+            showMsg("Chop: '¡AHORA RECIBIRÁS TU JUICIO!'");
+            stage = 6;
+        }
+        else if(stage === 6) {
+            document.body.style.background = "#4b0000";
+            // SALTO AUTOMÁTICO AL COMBATE (CAP 4)
+            setTimeout(() => {
+                window.location.href = "cap4.html"; 
+            }, 800);
+        }
+    }
+</script>
+</body>
+</html>

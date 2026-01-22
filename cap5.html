@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CAP 5 - EL DESTINO FINAL</title>
+    <style>
+        :root { --hell: #4b0000; --heaven: #e3f2fd; --gold: #ffd700; }
+        body { margin: 0; background: #000; color: white; font-family: 'Times New Roman', serif; overflow: hidden; touch-action: none; }
+
+        /* ESCENARIO DINÁMICO */
+        #throne-room {
+            width: 100vw; height: 100vh;
+            background: linear-gradient(to bottom, #111, #000);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: 3s;
+        }
+
+        /* PERSONAJES */
+        #father { font-size: 150px; filter: drop-shadow(0 0 20px #fff); transition: 1s; cursor: pointer; user-select: none; }
+        #player { width: 60px; height: 90px; background: #fff; box-shadow: 0 0 40px #fff; position: absolute; bottom: 10%; border-radius: 5px; }
+
+        /* BARRA DE VIDA PADRE */
+        #boss-ui { width: 60%; height: 20px; border: 2px solid white; margin-bottom: 50px; display: none; background: #222; }
+        #boss-hp { width: 100%; height: 100%; background: red; transition: 0.5s; }
+
+        /* CUADRO DE DIÁLOGO */
+        #dialog {
+            position: fixed; bottom: 0; width: 100%; height: 220px;
+            background: rgba(0,0,0,0.95); border-top: 4px solid var(--gold);
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 100; box-sizing: border-box;
+        }
+        #text { font-size: clamp(18px, 4vw, 26px); text-align: center; padding: 0 30px; line-height: 1.4; }
+
+        /* DECISIÓN FINAL */
+        #choices { display: none; gap: 20px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
+        .btn {
+            padding: 12px 25px; font-size: 18px; cursor: pointer;
+            border: 2px solid white; background: none; color: white;
+            transition: 0.4s; font-weight: bold; text-transform: uppercase;
+        }
+        .btn-kill:hover { background: red; box-shadow: 0 0 20px red; }
+        .btn-mercy:hover { background: white; color: black; box-shadow: 0 0 20px white; }
+
+        /* PANTALLA DE CRÉDITOS */
+        #end-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; flex-direction: column; align-items: center;
+            justify-content: center; z-index: 1000; text-align: center; padding: 20px; box-sizing: border-box;
+        }
+
+        /* CONTROLES MÓVILES */
+        #mobile-ui {
+            position: fixed; bottom: 20px; left: 0; width: 100%;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            padding: 0 30px; box-sizing: border-box; z-index: 9999; pointer-events: none;
+        }
+        .m-btn {
+            width: 70px; height: 70px; background: rgba(255,255,255,0.1);
+            border: 2px solid white; border-radius: 50%; color: white;
+            font-size: 25px; pointer-events: auto;
+        }
+        .m-action { 
+            width: 90px; height: 90px; background: rgba(255, 215, 0, 0.2); 
+            border-color: gold; font-weight: bold;
+        }
+        @media (min-width: 1024px) { #mobile-ui { display: none; } }
+    </style>
+</head>
+<body>
+
+<div id="throne-room">
+    <div id="boss-ui"><div id="boss-hp"></div></div>
+    <div id="father">🧔</div>
+    <div id="player"></div>
+</div>
+
+<div id="dialog">
+    <div id="text"></div>
+    <div id="choices">
+        <button class="btn btn-kill" onclick="decidir('MUERTE')">MATAR (Venganza)</button>
+        <button class="btn btn-mercy" onclick="decidir('PERDON')">PERDONAR (Piedad)</button>
+    </div>
+    <p id="press-e" style="color: gold; font-size: 14px; margin-top: 10px;">[Toca 'E' para continuar]</p>
+</div>
+
+<div id="mobile-ui">
+    <div style="width: 70px;"></div> <button class="m-btn m-action" id="m-e">E</button>
+</div>
+
+<div id="end-screen">
+    <h1 id="end-title" style="font-size: 50px; margin: 10px 0;"></h1>
+    <p id="end-desc" style="font-size: 20px; max-width: 700px; line-height: 1.5;"></p>
+    <div style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 20px;">
+        <h3 style="color: var(--gold); letter-spacing: 5px;">DIEDEB GAMES</h3>
+        <p>El Ciclo del Alma - Fin de la Odisea</p>
+    </div>
+    <button onclick="location.href='index.html'" style="margin-top: 30px; padding: 15px 40px; cursor: pointer; background: gold; border: none; font-weight: bold; border-radius: 5px;">REINICIAR CICLO</button>
+</div>
+
+<script>
+    let fatherHP = 100;
+    let step = 0;
+    const txt = document.getElementById('text');
+    const dialog = document.getElementById('dialog');
+    const father = document.getElementById('father');
+    const pressE = document.getElementById('press-e');
+
+    // INICIO CINEMÁTICO
+    setTimeout(() => {
+        dialog.style.display = "flex";
+        txt.innerText = "Entras al salón del trono. Tu padre te espera sentado, viejo y cansado.";
+    }, 1000);
+
+    function handleNext() {
+        if (document.getElementById('choices').style.display === "flex") return;
+
+        step++;
+        if(step === 1) {
+            txt.innerText = "Padre: 'Así que lo lograste... mataste a mis guerreros, sacrificaste al perro... ven y termina tu trabajo'.";
+        }
+        else if(step === 2) {
+            txt.innerText = "Padre: 'Si me matas, el trono será tuyo. Si no, morirás como un cobarde'.";
+        }
+        else if(step === 3) {
+            dialog.style.display = "none";
+            document.getElementById('boss-ui').style.display = "block";
+            txt.innerText = "¡ATACA A TU PADRE! (Toca o haz click sobre él)";
+            // Habilitar click/touch en el padre
+            father.addEventListener('click', golpearPadre);
+            father.addEventListener('touchstart', (e) => { e.preventDefault(); golpearPadre(); });
+        }
+    }
+
+    window.addEventListener('keydown', (e) => { if(e.key.toLowerCase() === 'e') handleNext(); });
+    document.getElementById('m-e').onclick = handleNext;
+
+    function golpearPadre() {
+        fatherHP -= 25; 
+        document.getElementById('boss-hp').style.width = fatherHP + "%";
+        father.style.transform = "scale(0.9) translateX(10px)";
+        setTimeout(() => father.style.transform = "scale(1) translateX(0)", 100);
+
+        if(fatherHP <= 0) {
+            father.removeEventListener('click', golpearPadre);
+            document.getElementById('boss-ui').style.display = "none";
+            prepararDecision();
+        }
+    }
+
+    function prepararDecision() {
+        father.style.transform = "rotate(90deg) translateY(60px)"; 
+        dialog.style.display = "flex";
+        pressE.style.display = "none";
+        txt.innerText = "Tu padre cae de rodillas. Su vida está en tus manos. ¿Qué decides?";
+        document.getElementById('choices').style.display = "flex";
+    }
+
+    function decidir(opcion) {
+        document.getElementById('choices').style.display = "none";
+        const screen = document.getElementById('end-screen');
+        const title = document.getElementById('end-title');
+        const desc = document.getElementById('end-desc');
+
+        if(opcion === 'MUERTE') {
+            document.getElementById('throne-room').style.background = "var(--hell)";
+            title.innerText = "EL NUEVO DIABLO";
+            title.style.color = "#ff0000";
+            desc.innerText = "Atraviesas el corazón de tu padre. Al morir, su corona rueda hacia tus pies. Has ganado... pero a cambio de tu alma. Eres el nuevo rey del sufrimiento.";
+            screen.style.background = "black";
+            screen.style.color = "white";
+        } else {
+            document.getElementById('throne-room').style.background = "var(--heaven)";
+            title.innerText = "ASCENSIÓN AL CIELO";
+            title.style.color = "#4a90e2";
+            desc.innerText = "Sueltas la espada. Tu padre ríe con odio y te apuñala con una daga oculta. Mientras el mundo se apaga, Chap te espera en un portal de luz pura.";
+            screen.style.background = "white";
+            screen.style.color = "black";
+        }
+        
+        setTimeout(() => {
+            screen.style.display = "flex";
+        }, 1500);
+    }
+</script>
+</body>
+</html>

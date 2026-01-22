@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CAP 2 - EL DESTINO DE UN HÉROE</title>
+    <style>
+        :root { --gold: #ffd700; --blood: #ff3333; }
+        body { margin: 0; background: #000; color: white; font-family: 'Georgia', serif; overflow: hidden; }
+
+        /* ESCENARIOS */
+        #viewport { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+        #background { 
+            width: 300%; height: 100%; position: absolute;
+            background: linear-gradient(to right, #2d5a27 0%, #2d5a27 33%, #4a4a4a 34%, #1a1a1a 66%, #000 100%);
+            transition: transform 1s ease-out; z-index: 1;
+        }
+
+        /* PERSONAJES */
+        .char { position: absolute; bottom: 150px; transition: all 0.5s; z-index: 10; font-size: 80px; }
+        #player { width: 60px; height: 90px; background: #fff; border: 3px solid #000; box-shadow: 0 0 20px #fff; border-radius: 5px; transition: left 0.1s linear; }
+        
+        #ship { position: absolute; right: -500px; bottom: 100px; font-size: 150px; transition: 3s; z-index: 5; }
+
+        /* BATALLA RAYQ */
+        #battle-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.9); display: none; z-index: 1000; 
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+        #rayq-boss { font-size: 120px; margin-bottom: 50px; filter: drop-shadow(0 0 30px var(--gold)); }
+        #hp-ui { width: 80%; height: 30px; border: 3px solid #fff; margin: 20px; background: #222; }
+        #hp-bar { width: 100%; height: 100%; background: var(--blood); transition: 0.3s; }
+        
+        #hit-target { 
+            width: 120px; height: 120px; background: var(--gold); border: 5px solid #fff;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 50px; cursor: pointer; position: absolute; box-shadow: 0 0 50px var(--gold);
+        }
+
+        /* DIÁLOGOS */
+        #dialog { 
+            position: fixed; bottom: 110px; width: 100%; height: 180px; 
+            background: linear-gradient(transparent, #000 40%); 
+            display: none; z-index: 2000; text-align: center; padding-top: 40px;
+        }
+        #dialog-text { font-size: 26px; font-style: italic; max-width: 85%; margin: 0 auto; line-height: 1.2; }
+
+        /* CONTROLES MÓVILES */
+        #mobile-ui {
+            position: fixed; bottom: 20px; left: 0; width: 100%;
+            display: flex; justify-content: space-between; padding: 0 30px; box-sizing: border-box; z-index: 9999;
+        }
+        .m-btn { width: 75px; height: 75px; background: rgba(255,255,255,0.1); border: 2px solid white; border-radius: 50%; color: white; font-size: 25px; }
+        .m-action { width: 90px; height: 90px; background: rgba(255, 215, 0, 0.2); border-color: gold; }
+        @media (min-width: 1024px) { #mobile-ui { display: none; } }
+
+        @keyframes shake {
+            0% { transform: translate(5px, 5px); }
+            50% { transform: translate(-5px, -5px); }
+            100% { transform: translate(0, 0); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="viewport">
+    <div id="background"></div>
+    <div id="ship">🚢</div>
+    <div id="player" class="char" style="left: 100px;"></div>
+    <div id="niño" class="char" style="left: 500px;">👦</div>
+    <div id="mama" class="char" style="left: 420px; display: none;">👩</div>
+    <div id="papa" class="char" style="left: 1500px;">🧔</div>
+</div>
+
+<div id="dialog">
+    <div id="dialog-text"></div>
+    <p style="color: var(--gold); font-size: 14px;">[Toca 'E' para continuar]</p>
+</div>
+
+<div id="battle-overlay">
+    <div id="rayq-boss">⚡</div>
+    <div id="hp-ui"><div id="hp-bar"></div></div>
+    <h2 id="battle-info">¡GOLPEA LOS RAYOS!</h2>
+    <div id="hit-target">⚔️</div>
+</div>
+
+<div id="mobile-ui">
+    <div style="display:flex; gap:10px;">
+        <button class="m-btn" id="m-left">◀</button>
+        <button class="m-btn" id="m-right">▶</button>
+    </div>
+    <button class="m-btn m-action" id="m-e">E</button>
+</div>
+
+<script>
+    let stage = 0; 
+    let pX = 100;
+    const player = document.getElementById('player');
+    const bg = document.getElementById('background');
+
+    // CONTROL HÍBRIDO (PC y MÓVIL)
+    function handleInput(key) {
+        if(document.getElementById('dialog').style.display === "block") {
+            if(key === 'e') nextScene();
+            return;
+        }
+
+        if(key === "arrowright" || key === "d") {
+            pX += 25;
+            player.style.left = pX + "px";
+            if(pX > 400 && stage === 0) triggerScene1();
+        }
+        if(key === "arrowleft" || key === "a") {
+            if(pX > 0) pX -= 25;
+            player.style.left = pX + "px";
+        }
+    }
+
+    window.addEventListener('keydown', (e) => handleInput(e.key.toLowerCase()));
+    document.getElementById('m-left').onclick = () => handleInput("arrowleft");
+    document.getElementById('m-right').onclick = () => handleInput("arrowright");
+    document.getElementById('m-e').onclick = () => handleInput("e");
+
+    function showDialog(text) {
+        document.getElementById('dialog').style.display = "block";
+        document.getElementById('dialog-text').innerText = text;
+    }
+
+    function triggerScene1() {
+        stage = 1;
+        document.getElementById('mama').style.display = "block";
+        showDialog("El niño te presenta a su madre. Te dan refugio... pero el cielo se oscurece.");
+    }
+
+    function nextScene() {
+        document.getElementById('dialog').style.display = "none";
+
+        if(stage === 1) { 
+            document.getElementById('ship').style.right = "150px";
+            setTimeout(() => {
+                document.getElementById('papa').style.left = "600px";
+                showDialog("Tu padre desembarca. Encadena a la familia y se los lleva al barco.");
+                stage = 2;
+            }, 1000);
+        }
+        else if(stage === 2) { 
+            document.getElementById('papa').style.display = "none";
+            document.getElementById('niño').style.display = "none";
+            document.getElementById('mama').style.display = "none";
+            document.getElementById('ship').style.right = "-600px";
+            bg.style.transform = "translateX(-33%)"; 
+            showDialog("Pasan 50 días de caminata... Tu cuerpo cambia, tu odio crece.");
+            stage = 3;
+        }
+        else if(stage === 3) { 
+            bg.style.transform = "translateX(-66%)"; 
+            showDialog("Un rayo cae. Rayq aparece: 'Tu padre dice que eres una deshonra. Comprobémoslo'.");
+            stage = 4;
+        }
+        else if(stage === 4) {
+            iniciarCombate();
+        }
+    }
+
+    let rayqHP = 100;
+    function iniciarCombate() {
+        document.getElementById('battle-overlay').style.display = "flex";
+        moverTarget();
+    }
+
+    document.getElementById('hit-target').onclick = () => {
+        rayqHP -= 20;
+        document.getElementById('hp-bar').style.width = rayqHP + "%";
+        document.getElementById('battle-overlay').style.animation = "shake 0.2s";
+        setTimeout(() => document.getElementById('battle-overlay').style.animation = "", 200);
+
+        if(rayqHP <= 0) {
+            document.getElementById('battle-overlay').style.display = "none";
+            showDialog("Rayq: 'Tienes ojos de demonio... ve a la montaña'.");
+            setTimeout(() => {
+                document.body.style.background = "black";
+                window.location.href = "cap2_5.html"; 
+            }, 2000);
+        } else {
+            moverTarget();
+        }
+    };
+
+    function moverTarget() {
+        const t = document.getElementById('hit-target');
+        t.style.left = Math.random() * 70 + 15 + "%";
+        t.style.top = Math.random() * 60 + 20 + "%";
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CAP 2.5 - EL SACRIFICIO DE CHAP</title>
+    <style>
+        :root { --snow: #ffffff; --ice: #a5f2f3; --blood: #b30000; }
+        body { margin: 0; background: #000; color: white; font-family: 'Verdana', sans-serif; overflow: hidden; }
+
+        /* ESCENARIO DE MONTAÑA */
+        #mountain-scene {
+            width: 100vw; height: 100vh;
+            background: linear-gradient(to top, #0a0a0a, #2c3e50);
+            position: relative; overflow: hidden;
+            transition: 2s;
+        }
+
+        /* NIEVE ANIMADA */
+        .flake {
+            position: absolute; background: white; border-radius: 50%;
+            opacity: 0.6; pointer-events: none;
+            animation: fall linear infinite;
+        }
+        @keyframes fall { to { transform: translateY(100vh) translateX(50px); } }
+
+        /* PERSONAJES */
+        .char { position: absolute; bottom: 120px; font-size: 85px; transition: all 0.8s ease; }
+        #player { width: 55px; height: 85px; background: #fff; border: 2px solid #333; box-shadow: 0 0 25px #fff; z-index: 20; border-radius: 5px; }
+        #chap { left: 80%; filter: drop-shadow(0 0 15px var(--ice)); }
+        #chop { left: 92%; filter: drop-shadow(0 0 15px #ff0000); }
+
+        /* EFECTO DE MUERTE */
+        #blood-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent, var(--blood));
+            display: none; z-index: 500; opacity: 0.8; pointer-events: none;
+        }
+
+        /* DIÁLOGOS */
+        #dialog-ui {
+            position: fixed; bottom: 110px; width: 90%; left: 5%; height: 160px;
+            background: rgba(0,0,0,0.85); border: 2px solid white;
+            z-index: 1000; display: none; text-align: center; border-radius: 15px;
+        }
+        #text { font-size: 24px; padding: 25px; line-height: 1.4; }
+        
+        /* ZOOM CINEMÁTICO */
+        .zoom-in { transform: scale(1.3); transform-origin: center bottom; }
+
+        /* CONTROLES MÓVILES */
+        #mobile-ui {
+            position: fixed; bottom: 20px; left: 0; width: 100%;
+            display: flex; justify-content: space-between; padding: 0 30px; box-sizing: border-box; z-index: 99999;
+        }
+        .m-btn { width: 75px; height: 75px; background: rgba(255,255,255,0.1); border: 2px solid white; border-radius: 50%; color: white; font-size: 25px; }
+        .m-action { width: 90px; height: 90px; background: rgba(255, 215, 0, 0.2); border-color: gold; font-weight: bold; }
+        @media (min-width: 1024px) { #mobile-ui { display: none; } }
+    </style>
+</head>
+<body>
+
+<div id="blood-overlay"></div>
+
+<div id="mountain-scene">
+    <div id="player" class="char" style="left: 50px;"></div>
+    <div id="chap" class="char">🐶</div>
+    <div id="chop" class="char">🐺</div>
+</div>
+
+<div id="dialog-ui">
+    <div id="text"></div>
+    <div style="color: gold; font-size: 14px; margin-top: -10px;">[Toca 'E' para continuar]</div>
+</div>
+
+<div id="mobile-ui">
+    <div style="display:flex; gap:15px;">
+        <button class="m-btn" id="m-left">◀</button>
+        <button class="m-btn" id="m-right">▶</button>
+    </div>
+    <button class="m-btn m-action" id="m-e">E</button>
+</div>
+
+<script>
+    let stage = 0;
+    let pX = 50;
+    const player = document.getElementById('player');
+    const dialog = document.getElementById('dialog-ui');
+    const text = document.getElementById('text');
+    const scene = document.getElementById('mountain-scene');
+
+    // Generar Nieve
+    for(let i=0; i<80; i++) {
+        let flake = document.createElement('div');
+        flake.className = 'flake';
+        flake.style.left = Math.random() * 100 + "vw";
+        flake.style.width = flake.style.height = Math.random() * 4 + "px";
+        flake.style.animationDuration = (Math.random() * 3 + 2) + "s";
+        document.body.appendChild(flake);
+    }
+
+    // Lógica de Movimiento Híbrida
+    function handleInput(key) {
+        if(dialog.style.display === "block") {
+            if(key === 'e') handleStory();
+            return;
+        }
+
+        if(key === "arrowright" || key === "d") {
+            pX += 25;
+            player.style.left = pX + "px";
+            if(pX > window.innerWidth * 0.5 && stage === 0) triggerEncounter();
+        }
+        if(key === "arrowleft" || key === "a") {
+            if(pX > 0) pX -= 25;
+            player.style.left = pX + "px";
+        }
+    }
+
+    window.addEventListener('keydown', (e) => handleInput(e.key.toLowerCase()));
+
+    function triggerEncounter() {
+        stage = 1;
+        dialog.style.display = "block";
+        text.innerText = "Llegas a la cima. Chap y Chop bloquean el paso.";
+    }
+
+    function handleStory() {
+        if(stage === 1) {
+            text.innerText = "Chap: 'Detente humano. Mi hermano Chop cree que eres como tu padre, un asesino'.";
+            stage = 2;
+        } 
+        else if(stage === 2) {
+            text.innerText = "Chop: '¡Siento el olor a sangre en su espada! ¡MUERE, HUMANO!'";
+            stage = 3;
+        }
+        else if(stage === 3) {
+            scene.classList.add('zoom-in');
+            text.innerText = "Chop salta para atacarte, pero Chap se interpone en medio...";
+            stage = 4;
+        }
+        else if(stage === 4) {
+            document.getElementById('blood-overlay').style.display = "block";
+            const chap = document.getElementById('chap');
+            chap.style.transform = "rotate(90deg) translateY(60px)";
+            chap.style.opacity = "0.5";
+            text.innerHTML = "<span style='color:red; font-weight:bold;'>¡¡SLAAAASH!!</span> Tu espada atraviesa a Chap por error.";
+            stage = 5;
+        }
+        else if(stage === 5) {
+            document.getElementById('blood-overlay').style.background = "black";
+            text.innerText = "Chop lanza un aullido desgarrador. '¡HAS MATADO A MI HERMANO! ¡TE CAZARÉ HASTA EL FIN!'";
+            stage = 6;
+        }
+        else if(stage === 6) {
+            document.getElementById('chop').style.left = "120vw"; 
+            text.innerText = "Chop huye hacia el Templo del Juicio. La nieve borra el rastro de Chap.";
+            stage = 7;
+        }
+        else if(stage === 7) {
+            // SALTO AUTOMÁTICO AL CAP 3
+            document.body.style.transition = "2s";
+            document.body.style.background = "black";
+            setTimeout(() => {
+                window.location.href = "cap3.html"; 
+            }, 2000);
+        }
+    }
+
+    // Controles móviles
+    document.getElementById('m-left').onclick = () => handleInput("arrowleft");
+    document.getElementById('m-right').onclick = () => handleInput("arrowright");
+    document.getElementById('m-e').onclick = () => handleInput("e");
+</script>
+</body>
+</html>

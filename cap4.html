@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CAP 4 - EL JUICIO DE CHOP</title>
+    <style>
+        :root { --blood: #ff0000; --warning: rgba(255, 0, 0, 0.4); --gold: #ffd700; }
+        body { margin: 0; background: #050505; color: white; font-family: 'Arial Black', sans-serif; overflow: hidden; touch-action: none; }
+
+        /* INTERFAZ */
+        #hud { position: fixed; top: 0; width: 100%; padding: 15px; display: flex; justify-content: space-around; z-index: 100; background: rgba(0,0,0,0.8); box-sizing: border-box; }
+        .bar-container { width: 45%; height: 20px; border: 2px solid #fff; background: #222; position: relative; }
+        #chop-hp { width: 100%; height: 100%; background: var(--blood); transition: 0.1s; }
+        #player-hp { width: 100%; height: 100%; background: #00ff00; transition: 0.3s; }
+        .label { position: absolute; top: -18px; font-size: 12px; color: gold; }
+
+        /* ESCENARIO */
+        #arena { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        #chop-sprite { font-size: clamp(100px, 20vw, 150px); filter: drop-shadow(0 0 30px var(--blood)); z-index: 10; transition: 0.1s; }
+
+        /* ZONA ROJA EXTREMA */
+        #danger-zone { 
+            position: absolute; width: 180px; height: 180px; 
+            background: var(--warning); border: 4px solid var(--blood);
+            border-radius: 50%; display: none; z-index: 5;
+            transform: translate(-50%, -50%);
+        }
+
+        /* BOTÓN ATAQUE JUGADOR */
+        #hit-button { 
+            position: absolute; width: 80px; height: 80px; 
+            background: gold; border: 4px solid #fff; border-radius: 50%;
+            display: none; z-index: 50; cursor: pointer; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px gold; font-size: 35px; transform: translate(-50%, -50%);
+        }
+
+        /* PUNTERO/ALMA DEL JUGADOR (Para ver dónde estás en móvil) */
+        #cursor-hitbox {
+            position: absolute; width: 20px; height: 20px;
+            background: #fff; border-radius: 50%; box-shadow: 0 0 15px #fff;
+            pointer-events: none; z-index: 100; transform: translate(-50%, -50%);
+        }
+
+        .shake { animation: shake 0.2s; }
+        @keyframes shake { 0% { transform: translate(5px, 5px); } 50% { transform: translate(-5px, -5px); } 100% { transform: translate(0, 0); } }
+        
+        #final-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 40px; display: none; z-index: 200; text-align: center; width: 100%; background: rgba(0,0,0,0.9); padding: 20px; }
+    </style>
+</head>
+<body>
+
+<div id="hud">
+    <div class="bar-container"><span class="label">CHOP (JUICIO)</span><div id="chop-hp"></div></div>
+    <div class="bar-container"><span class="label">ALMA</span><div id="player-hp"></div></div>
+</div>
+
+<div id="arena">
+    <div id="cursor-hitbox"></div>
+    <div id="danger-zone"></div>
+    <div id="hit-button">⚔️</div>
+    <div id="chop-sprite">🐺</div>
+</div>
+
+<div id="final-msg">¡JUICIO COMPLETADO!<br><small>El pecado ha sido pagado...</small></div>
+
+<script>
+    let cHP = 1000; 
+    let pHP = 100;
+    let currentX = window.innerWidth / 2;
+    let currentY = window.innerHeight / 2;
+
+    const dangerZone = document.getElementById('danger-zone');
+    const hitButton = document.getElementById('hit-button');
+    const chopSprite = document.getElementById('chop-sprite');
+    const cursor = document.getElementById('cursor-hitbox');
+
+    // Movimiento Híbrido (Mouse y Toque)
+    function updatePos(x, y) {
+        currentX = x;
+        currentY = y;
+        cursor.style.left = x + "px";
+        cursor.style.top = y + "px";
+    }
+
+    window.addEventListener('mousemove', (e) => updatePos(e.clientX, e.clientY));
+    window.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        updatePos(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: false });
+
+    function chopAttackCycle() {
+        if (cHP <= 0 || pHP <= 0) return;
+
+        // Avisa donde va a atacar (donde estás tú ahora)
+        const attackX = currentX;
+        const attackY = currentY;
+        
+        dangerZone.style.left = attackX + "px";
+        dangerZone.style.top = attackY + "px";
+        dangerZone.style.display = "block";
+        dangerZone.style.background = "rgba(255, 0, 0, 0.2)";
+
+        // Tienes medio segundo para moverte
+        setTimeout(() => {
+            dangerZone.style.background = "rgba(255, 0, 0, 0.8)";
+            
+            // Calculamos distancia desde el centro del ataque
+            const dist = Math.hypot(currentX - attackX, currentY - attackY);
+            
+            if (dist < 90) { 
+                pHP -= 25;
+                document.getElementById('player-hp').style.width = pHP + "%";
+                document.body.classList.add('shake');
+                setTimeout(() => document.body.classList.remove('shake'), 200);
+                
+                if (pHP <= 0) {
+                    alert("Chop ha reclamado tu alma...");
+                    location.reload();
+                }
+            }
+
+            setTimeout(() => {
+                dangerZone.style.display = "none";
+                aparecerBotonAtaque();
+            }, 200);
+        }, 600);
+    }
+
+    function aparecerBotonAtaque() {
+        if (cHP <= 0) return;
+        hitButton.style.left = (Math.random() * 60 + 20) + "%";
+        hitButton.style.top = (Math.random() * 50 + 25) + "%";
+        hitButton.style.display = "flex";
+        
+        setTimeout(() => {
+            hitButton.style.display = "none";
+            setTimeout(chopAttackCycle, 500);
+        }, 900);
+    }
+
+    hitButton.onclick = (e) => {
+        e.stopPropagation();
+        cHP -= 100;
+        document.getElementById('chop-hp').style.width = (cHP / 10) + "%";
+        hitButton.style.display = "none";
+        chopSprite.style.transform = "scale(0.8)";
+        setTimeout(() => chopSprite.style.transform = "scale(1)", 100);
+        
+        if (cHP <= 0) {
+            finalizarCombate();
+        }
+    };
+
+    function finalizarCombate() {
+        document.getElementById('final-msg').style.display = "block";
+        document.body.style.background = "white";
+        document.body.style.transition = "background 2s";
+        
+        setTimeout(() => {
+            // SALTO AL CAPÍTULO 5 (EL FINAL)
+            window.location.href = "cap5.html"; 
+        }, 3000);
+    }
+
+    // Iniciar batalla
+    setTimeout(chopAttackCycle, 2000);
+</script>
+</body>
+</html>

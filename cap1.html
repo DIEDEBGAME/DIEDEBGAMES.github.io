@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>EL CICLO DEL ALMA - CAPÍTULO 1</title>
+    <style>
+        :root { --light: #ffffff; --blood: #880000; }
+        body { margin: 0; background: #000; color: white; font-family: 'Times New Roman', serif; overflow: hidden; }
+
+        #game-canvas {
+            width: 100vw; height: 100vh;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        #cinematic-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; display: none; z-index: 1000;
+            transition: opacity 3s ease-in-out;
+        }
+
+        #player {
+            width: 40px; height: 60px;
+            background: rgba(255, 255, 255, 0.8);
+            position: absolute; border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 30px var(--light);
+            filter: blur(1px); z-index: 10;
+        }
+
+        #exit-light {
+            position: absolute; right: -50px; top: 50%;
+            transform: translateY(-50%);
+            width: 200px; height: 600px;
+            background: white; box-shadow: 0 0 100px 50px white;
+        }
+
+        #dialog-box {
+            position: fixed; bottom: 120px; width: 80%; left: 10%;
+            background: rgba(0,0,0,0.85); border: 1px solid #444;
+            padding: 20px; font-size: 22px; text-align: center;
+            z-index: 2000; border-radius: 10px; display: none;
+        }
+
+        /* CONTROLES MÓVILES */
+        #mobile-ui {
+            position: fixed; bottom: 20px; left: 0; width: 100%;
+            display: flex; justify-content: center; gap: 40px; z-index: 9999;
+        }
+        .m-btn {
+            width: 80px; height: 80px; background: rgba(255,255,255,0.1);
+            border: 2px solid white; border-radius: 50%; color: white; font-size: 30px;
+        }
+        @media (min-width: 1024px) { #mobile-ui { display: none; } }
+
+        #stats { position: fixed; top: 20px; left: 20px; color: #555; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div id="stats">CAPÍTULO 1: EL ORIGEN</div>
+
+<div id="game-canvas">
+    <div id="player" style="left: 100px; top: 45%;"></div>
+    <div id="exit-light"></div>
+    
+    <div id="cave-elements" style="display:none; width: 100%; height: 100%;">
+        <div id="demon" style="position:absolute; right: 100px; top: 50px; font-size: 80px; opacity: 0.1;">👹</div>
+        <div id="cave-exit" style="position:absolute; right: 0; top: 0; width: 60px; height: 100%; background: linear-gradient(to left, #0a2f0a, transparent);"></div>
+    </div>
+</div>
+
+<div id="cinematic-overlay"></div>
+
+<div id="dialog-box"><div id="text"></div></div>
+
+<div id="mobile-ui">
+    <button class="m-btn" id="m-left">◀</button>
+    <button class="m-btn" id="m-right">▶</button>
+</div>
+
+<script>
+    const player = document.getElementById('player');
+    const dialog = document.getElementById('dialog-box');
+    const text = document.getElementById('text');
+    const overlay = document.getElementById('cinematic-overlay');
+    
+    let pX = 100;
+    let stage = "TUNEL";
+    let canMove = true;
+
+    function showText(msg, time = 4000) {
+        dialog.style.display = "block";
+        text.innerText = msg;
+        if(time !== 0) setTimeout(() => { dialog.style.display = "none"; }, time);
+    }
+
+    // Inicio
+    showText("Caminas por un túnel infinito... una luz te llama.", 4000);
+
+    // Movimiento (Teclado y Móvil)
+    function move(dir) {
+        if(!canMove) return;
+        const speed = 15;
+        if(dir === "R") pX += speed;
+        if(dir === "L") { if(pX > 0) pX -= speed; }
+        player.style.left = pX + "px";
+        checkCollision();
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if(e.key === "ArrowRight") move("R");
+        if(e.key === "ArrowLeft") move("L");
+    });
+
+    document.getElementById('m-left').onclick = () => move("L");
+    document.getElementById('m-right').onclick = () => move("R");
+
+    function checkCollision() {
+        if(stage === "TUNEL" && pX > window.innerWidth - 80) {
+            triggerNacimiento();
+        }
+        if(stage === "CUEVA" && pX > window.innerWidth - 60) {
+            canMove = false;
+            document.body.style.background = "black";
+            // SALTO AUTOMÁTICO AL CAP 2
+            setTimeout(() => { window.location.href = "cap2.html"; }, 1000);
+        }
+    }
+
+    function triggerNacimiento() {
+        canMove = false;
+        overlay.style.display = "block";
+        showText("DIOS: Ve a la vida, hijo mío...", 3000);
+        
+        setTimeout(() => {
+            overlay.style.background = "black";
+            showText("Naces en una isla. Pero la sombra de tu padre lo arruina todo.", 4000);
+        }, 4000);
+
+        setTimeout(() => {
+            showText("Tu padre te arroja al mar... el frío te rodea...", 4000);
+            setTimeout(startCueva, 4000);
+        }, 8500);
+    }
+
+    function startCueva() {
+        stage = "CUEVA";
+        canMove = true;
+        pX = 50;
+        player.style.left = pX + "px";
+        player.style.background = "#cdf";
+        overlay.style.display = "none";
+        document.getElementById('exit-light').style.display = "none";
+        document.getElementById('cave-elements').style.display = "block";
+        showText("Despiertas en una cueva. Sal de aquí.", 4000);
+    }
+</script>
+</body>
+</html>
